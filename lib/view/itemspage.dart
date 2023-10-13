@@ -14,7 +14,7 @@ import 'login.dart';
 String itemname = '';
 int? grandTotal;
 String? location;
-num count = 1;
+num? count = 1;
 
 class ItemsPage extends StatefulWidget {
   const ItemsPage({super.key, this.item});
@@ -81,7 +81,7 @@ class _ItemsPageState extends State<ItemsPage> {
     });
   }
 
-  var count;
+  // var count;
   List itemdata = [];
   List filterList = [];
   List Grandtotal = [];
@@ -143,7 +143,6 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
-  // dynamic Orderdata = [];
   String? formattedDate;
   String? formattedTime;
 
@@ -163,34 +162,33 @@ class _ItemsPageState extends State<ItemsPage> {
        itemprice   =  filterList[i]['item_price1'].toString();
     int value =  filterList[i]['item_price1'] * int.tryParse(controller.toString());
        itemqty = value.toString();
-     // print(i);
       // Do something with itemCode
        orderData.add({
-         'compCode': comp,
-         'ordDate': '${DateTime.now().toString()}',
-         'ordTime': '${DateTime.now().toString()}',
-         'itemCode': itemCode,
-         'itemName': itemnames,
-         'itemQty': controller,
-         'itemPrice': itemprice,
-         'itemTax': null,
-         'itemDisc': null,
-         'itemCess': null,
-         'trxTotal': itemqty,
-         'statusFlag': "0",
-         'actCode': "${widget.item['cust_code']}",
-         'actName':'${widget.item['cust_name']}',
-         'actAddress': "${widget.item['cust_address']}",
-         'actPhone': "${widget.item['cust_phone']}",
-         'actArea': location,
-         'actType': "${widget.item['cust_type']}",
-         'trxDisc': null,
-         'trxNetamount': null,
-         'userCode': usercode,
-         'userName': user,
-         'latLong': '${latitude},${longitude}',
-         'systemName': "$deviceModel",
-         'grandtotal': "$grandTotal"
+         'comp_code': comp,
+         'ord_date': '${DateTime.now().toString()}',
+         'ord_time': '${DateTime.now().toString()}',
+         'item_code': itemCode,
+         'item_name': itemnames,
+         'item_qty': controller,
+         'item_price': itemprice,
+         'item_tax': null,
+         'item_disc': null,
+         'item_cess': null,
+         'trx_total': itemqty,
+         'status_flag': "0",
+         'act_code': "${widget.item['cust_code']}",
+         'act_name':'${widget.item['cust_name']}',
+         'act_address': "${widget.item['cust_address']}",
+         'act_phone': "${widget.item['cust_phone']}",
+         'act_area': location,
+         'act_type': "${widget.item['cust_type']}",
+         'trx_disc': null,
+         'trx_netamount': null,
+         'user_code': usercode,
+         'user_name': user,
+         'lat_long': '${latitude},${longitude}',
+         'system_name': "$deviceModel",
+         'grand_total': "$grandTotal"
        });
     }
 
@@ -242,9 +240,67 @@ class _ItemsPageState extends State<ItemsPage> {
                   ), // Set the background color of the button
                 ),
                 onPressed: () {
-                  Purchase_data();
-                  createOrderAPI(orderData);
-                  getDeviceName();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        title: Center(child: Text('Do you want to confirm ?',style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
+                        content: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Amount   $grandTotal' ),
+                          ],
+                        ),
+                        actions: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                SizedBox(
+                                  height: 30,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black, // background color
+                                      onPrimary: Colors.white, // text color
+                                    ),
+                                    child: Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 30,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color.fromARGB(225,141, 182, 244,), // background color
+                                      onPrimary: Colors.white, // text color
+                                    ),
+                                    child: Text('Confirm'),
+                                    onPressed: () {
+                                      // Add your logic if the user confirms
+                                      setState(() {
+                                        Purchase_data();
+                                        createOrderAPI(orderData);
+                                        getDeviceName();
+                                      });
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ),
+
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+
                   // print(filterList.toString());
                 },
                 child: Row(
@@ -378,7 +434,8 @@ class _ItemsPageState extends State<ItemsPage> {
                 hintText: 'Search Item',
                 controller: itemController,
                 onChanged: (value) {
-                  setState(() {});
+                  setState(() {
+                  });
                 },
                 onSubmitted: (value) {
                   setState(() {});
@@ -407,13 +464,7 @@ class _ItemsPageState extends State<ItemsPage> {
                   child: ListView.builder(
                 itemCount: filterList.length,
                 itemBuilder: (context, index) {
-                  itemControllers.add(TextEditingController());
-                  // Check if selectedName is not null and filter by cust_name
-                  // if (selectedName != null &&
-                  //     filterList[index]['item_name'] != selectedName) {
-                  //   // Skip this item if it doesn't match the selected cust_name
-                  //   return SizedBox.shrink();
-                  // }
+                  itemControllers.add(TextEditingController(text: '1'));
                   return Column(
                     children: [
                       Dismissible(
@@ -492,7 +543,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                     ),
                                     onTap: () {
                                       setState(() {
-                                        if (count > 0) {
+                                        if (int.tryParse(itemControllers[index].text)! > 0) {
                                           int count = int.tryParse(itemControllers[index].text) ?? 0;
                                           count--;
                                           itemControllers[index].text = count.toString();
@@ -657,7 +708,6 @@ class _ItemFilterState extends State<ItemFilter> {
             itemBuilder: (context, suggestion) {
               final isLastItem = widget.suggestions.indexOf(suggestion) ==
                   widget.suggestions.length - 1;
-
               return Container(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(10, 5, 5, 0),
@@ -673,10 +723,22 @@ class _ItemFilterState extends State<ItemFilter> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(suggestion['item_qty'].toString(),
-                              style: TextStyle(fontSize: 15)),
-                          Text(suggestion['item_price1'].toString(),
-                              style: TextStyle(fontSize: 15)),
+                          Row(
+                            children: [
+                              Text('stock : ',
+                                  style: TextStyle(fontSize: 15)),
+                              Text(suggestion['item_qty'].toString(),
+                                  style: TextStyle(fontSize: 15)),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text('price : ',
+                                  style: TextStyle(fontSize: 15)),
+                              Text(suggestion['item_price1'].toString(),
+                                  style: TextStyle(fontSize: 15)),
+                            ],
+                          ),
                         ],
                       ),
                       if (!isLastItem) Divider(thickness: 1.5),
