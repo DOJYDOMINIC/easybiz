@@ -421,8 +421,8 @@ class _ItemsPageState extends State<ItemsPage> {
                         onDismissed: (direction) {
                           setState(() {
                             filterList.removeAt(index);
+                            itemControllers.removeAt(index);
                             grandTotal = calculateTotal();
-                            itemControllers[index].clear();
                           });
                         },
                         background: Container(
@@ -493,6 +493,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                     onTap: () {
                                       setState(() {
                                         if (count > 0) {
+                                          int count = int.tryParse(itemControllers[index].text) ?? 0;
                                           count--;
                                           itemControllers[index].text = count.toString();
                                           grandTotal = calculateTotal();
@@ -561,7 +562,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                     ),
                                     onTap: () {
                                       setState(() {
-                                        // if (count != 10000) {
+                                        int count = int.tryParse(itemControllers[index].text) ?? 0;
                                         count++;
                                         itemControllers[index].text = count.toString();
                                         grandTotal = calculateTotal();
