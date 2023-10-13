@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:device_info/device_info.dart';
-import 'package:easybiz/main.dart';
-import 'package:easybiz/model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../const.dart';
-import 'company_data.dart';
 import 'dart:io';
 
 import 'login.dart';
@@ -34,7 +31,7 @@ class _ItemsPageState extends State<ItemsPage> {
     super.initState();
     ItemCall();
     _getCurrentLocation();
-    print(widget.item.toString());
+    // print(widget.item.toString());
     count = 1;
   }
 
@@ -48,14 +45,14 @@ class _ItemsPageState extends State<ItemsPage> {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       deviceModel = androidInfo.model;
-      print(deviceModel);
+      // print(deviceModel);
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       deviceModel = iosInfo.name;
-      print(deviceModel);
+      // print(deviceModel);
     } else {
       deviceModel = 'Unknown';
-      print(deviceModel);
+      // print(deviceModel);
     }
   }
 
@@ -79,8 +76,8 @@ class _ItemsPageState extends State<ItemsPage> {
     setState(() {
       latitude = position.latitude;
       longitude = position.longitude;
-      print('${latitude}');
-      print('${longitude}');
+      // print('${latitude}');
+      // print('${longitude}');
     });
   }
 
@@ -166,7 +163,7 @@ class _ItemsPageState extends State<ItemsPage> {
        itemprice   =  filterList[i]['item_price1'].toString();
     int value =  filterList[i]['item_price1'] * int.tryParse(controller.toString());
        itemqty = value.toString();
-     print(i);
+     // print(i);
       // Do something with itemCode
        orderData.add({
          'compCode': comp,
@@ -248,7 +245,7 @@ class _ItemsPageState extends State<ItemsPage> {
                   Purchase_data();
                   createOrderAPI(orderData);
                   getDeviceName();
-                  print(filterList.toString());
+                  // print(filterList.toString());
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -496,9 +493,8 @@ class _ItemsPageState extends State<ItemsPage> {
                                     onTap: () {
                                       setState(() {
                                         if (count > 0) {
-                                          itemControllers[index].text =
-                                              count.toString();
                                           count--;
+                                          itemControllers[index].text = count.toString();
                                           grandTotal = calculateTotal();
 
                                           // Update your total or other calculations here
@@ -543,8 +539,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                                 },
                                               );
                                               // Reset the TextField value to the current item count
-                                              itemControllers[index].text =
-                                                  count.toString();
+                                              itemControllers[index].text = count.toString();
                                             }
                                           }
                                         });
@@ -567,12 +562,10 @@ class _ItemsPageState extends State<ItemsPage> {
                                     onTap: () {
                                       setState(() {
                                         // if (count != 10000) {
-                                        itemControllers[index].text = count.toString();
                                         count++;
+                                        itemControllers[index].text = count.toString();
                                         grandTotal = calculateTotal();
-                                        print(itemControllers[0].text);
-                                        print( itemControllers[1].text);
-                                        print( itemControllers[2].text);
+                                        // print(itemControllers[0].text);
                                         // Update your total or other calculations here
                                       });
                                     },

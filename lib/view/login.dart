@@ -1,19 +1,17 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../const.dart';
 import '../widget/main_fields.dart';
 import 'company_data.dart';
 
 
-
 String? user;
 String? comp;
 String? usercode;
+
 
 class Login extends StatefulWidget {
   const Login({super.key});
