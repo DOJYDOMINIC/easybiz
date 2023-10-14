@@ -7,6 +7,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   user = prefs.getString('user');
+  comp = prefs.getString('comp');
 
   runApp(MyApp());
 }
@@ -24,6 +25,6 @@ class _MyAppState extends State<MyApp> {
     // print(comp);
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: user != null ? CompanyData() : Login());
+        home: user !=null && comp != null ? CompanyData() : Login());
   }
 }

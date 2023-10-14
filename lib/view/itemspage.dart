@@ -118,7 +118,9 @@ class _ItemsPageState extends State<ItemsPage> {
     try {
       final uri = Uri.parse('${api}/items');
       SharedPreferences prefs = await SharedPreferences.getInstance();
+
       location = prefs.getString('location');
+      comp = prefs.getString('comp');
       final requestBody = {
         'compcode': comp,
         // 'custcode': widget.item['cust_code'],
@@ -175,9 +177,9 @@ class _ItemsPageState extends State<ItemsPage> {
         'item_name': itemnames,
         'item_qty': controller,
         'item_price': itemprice,
-        'item_tax': null,
-        'item_disc': null,
-        'item_cess': null,
+        'item_tax': 0.0,
+        'item_disc': 0.0,
+        'item_cess': 0.0,
         'trx_total': itemqty,
         'status_flag': "0",
         'act_code': "${widget.item['cust_code']}",
@@ -186,8 +188,8 @@ class _ItemsPageState extends State<ItemsPage> {
         'act_phone': "${widget.item['cust_phone']}",
         'act_area': location,
         'act_type': "${widget.item['cust_type']}",
-        'trx_disc': null,
-        'trx_netamount': null,
+        'trx_disc': 0.0,
+        'trx_netamount': 0.0,
         'user_code': usercode,
         'user_name': user,
         'lat_long': '${latitude},${longitude}',
@@ -209,11 +211,10 @@ class _ItemsPageState extends State<ItemsPage> {
         headers: {'Content-Type': 'application/json'},
         body: json.encode(orderData),
       );
-
+      print(comp);
       if (response.statusCode == 200) {
         // Handle success
-        orderData.clear();
-        print('Order placed successfully');
+        // print('Order placed successfully');
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -223,6 +224,7 @@ class _ItemsPageState extends State<ItemsPage> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
+                    orderData.clear();
                     Navigator.of(context).pop();
                   },
                   child: Text('OK'),
@@ -254,23 +256,6 @@ class _ItemsPageState extends State<ItemsPage> {
       }
     } catch (e) {
       print('Error: $e');
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('An error occurred while placing your order.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
     }
   }
 

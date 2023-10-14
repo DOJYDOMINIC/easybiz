@@ -29,7 +29,7 @@ class _CompanyDataState extends State<CompanyData> {
   @override
   void initState() {
     super.initState();
-    Loginin();
+    AreaApi_all();
     CustLocation();
     // '${prefs.getString('location')}'
   }
@@ -46,7 +46,7 @@ class _CompanyDataState extends State<CompanyData> {
     }
   }
 
-  Future<void> Loginin() async {
+  Future<void> AreaApi_all() async {
     try {
       final uri = Uri.parse('$api/area');
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -219,10 +219,6 @@ class _CompanyDataState extends State<CompanyData> {
                   ),
                 ],
               ),
-              // Padding(
-              //   padding: const EdgeInsets.fromLTRB(0, 15, 0, 10),
-              //   child: Divider(color: app_color, thickness: 2),
-              // ),
               AreaFilter(
                 suggestions: SelectedData,
                 hintText: 'Item Search',

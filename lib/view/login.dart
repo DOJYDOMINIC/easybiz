@@ -34,18 +34,14 @@ class _LoginState extends State<Login> {
 
   Future<void> loginApi(String username, String password, String compcode) async {
     var usercodeset;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('user', username);
-    prefs.setString('comp', compcode);
-    user = prefs.getString('user');
-    comp = prefs.getString('comp');
+
 
     try {
       final uri = Uri.parse('${api}/login');
       final requestBody = {
         'username': username,
         'password': password,
-        'compcode': compcode,
+        // 'compcode': compcode,
       };
 
       final response = await http.post(
@@ -58,14 +54,19 @@ class _LoginState extends State<Login> {
       );
 
       if (response.statusCode == 200) {
-
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('user', username);
+        prefs.setString('comp', compcode);
+        user = prefs.getString('user');
+        comp = prefs.getString('comp');
         // SharedPreferences prefs = await SharedPreferences.getInstance();
         final Map<String, dynamic> data = json.decode(response.body);
         usercodeset = data['result'][0]['user_id'];
+        compcode = data['result'][0]['comp_code'];
         prefs.setString('usercode',usercodeset);
         usercode = prefs.getString('usercode');
 
-        // print(data.toString());
+        print(data.toString());
         // Now, you can navigate to the CompanyData page
 
         Navigator.push(
