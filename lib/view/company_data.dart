@@ -23,29 +23,28 @@ class CompanyData extends StatefulWidget {
 class _CompanyDataState extends State<CompanyData> {
 
 
-   List finalData = [];
-   List SelectedData = [];
+  List finalData = [];
+  List SelectedData = [];
 
-   @override
-   void initState() {
-     super.initState();
-     Loginin();
-     CustLocation();
-     print(comp);
-     // '${prefs.getString('location')}'
-   }
-
-Future<void> CustLocation() async{
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  if(prefs.getString('location') != null){
-    locationcontroller.text = prefs.getString('location')!;
-    SelectedArea(locationcontroller.text);
-
-  }else{
-     locationcontroller.text;
+  @override
+  void initState() {
+    super.initState();
+    Loginin();
+    CustLocation();
+    // '${prefs.getString('location')}'
   }
-}
+
+  Future<void> CustLocation() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    if(prefs.getString('location') != null){
+      locationcontroller.text = prefs.getString('location')!;
+      SelectedArea(locationcontroller.text);
+
+    }else{
+      locationcontroller.text;
+    }
+  }
 
   Future<void> Loginin() async {
     try {
@@ -79,37 +78,37 @@ Future<void> CustLocation() async{
     }
   }
 
-   Future<void> SelectedArea(String value) async {
-     try {
-       final uri = Uri.parse('${api}/cust');
-       SharedPreferences prefs = await SharedPreferences.getInstance();
-       prefs.setString('location', value);
-       username = prefs.getString('user');
-       prefs.getString('user');
-       final requestBody = {
-         'area' : locationcontroller.text,
-         'compcode': '${prefs.getString('comp')}',
-       };
-       final response = await http.post(
-         uri,
-         headers: {
-           'Content-Type': 'application/json',
-         },
-         body: json.encode(requestBody),
-       );
-       if (response.statusCode == 200) {
-         final Map<String, dynamic> data = json.decode(response.body);
-         setState(() {
-           SelectedData = data['data'];
-           print(SelectedData.toString());
-         });
-       } else {
-         print('Error: ${response.statusCode}');
-       }
-     } catch (e) {
-       print('Error: $e');
-     }
-   }
+  Future<void> SelectedArea(String value) async {
+    try {
+      final uri = Uri.parse('${api}/cust');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('location', value);
+      username = prefs.getString('user');
+      prefs.getString('user');
+      final requestBody = {
+        'area' : locationcontroller.text,
+        'compcode': '${prefs.getString('comp')}',
+      };
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestBody),
+      );
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        setState(() {
+          SelectedData = data['data'];
+          print(SelectedData.toString());
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
 
   String getTypeDescription(String custType) {
     if (custType == '1') {
@@ -351,7 +350,7 @@ class CustomAutoCompleteTextField extends StatefulWidget {
 }
 
 class _CustomAutoCompleteTextFieldState extends State<CustomAutoCompleteTextField> {
- // Callback when user changes the input
+  // Callback when user changes the input
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -395,7 +394,7 @@ class _CustomAutoCompleteTextFieldState extends State<CustomAutoCompleteTextFiel
           suggestionsCallback: (pattern) async{
 
             return widget.suggestions.where((item) => item['cust_area'].toLowerCase().contains(pattern.toLowerCase()));
-            },
+          },
           itemBuilder: (context, suggestion) {
             return ListTile(
               title: Text(suggestion['cust_area']),
@@ -406,8 +405,8 @@ class _CustomAutoCompleteTextFieldState extends State<CustomAutoCompleteTextFiel
             return suggestionsBox;
           },
           onSuggestionSelected: (suggestion) {
-              widget.controller.text = suggestion['cust_area'];
-              widget.onSubmitted!(suggestion['cust_area']);
+            widget.controller.text = suggestion['cust_area'];
+            widget.onSubmitted!(suggestion['cust_area']);
           },
         ),
       ),

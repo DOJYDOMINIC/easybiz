@@ -98,11 +98,11 @@ class _ItemsPageState extends State<ItemsPage> {
   // String? user_name;
   int calculateTotal() {
     int total = 0;
-      for (int index = 0; index < filterList.length; index++) {
-        int itemPrice1 = filterList[index]['item_price1'];
-        int count = int.tryParse(itemControllers[index].text) ?? 0;
-        total += itemPrice1 * count;
-      }
+    for (int index = 0; index < filterList.length; index++) {
+      int itemPrice1 = filterList[index]['item_price1'];
+      int count = int.tryParse(itemControllers[index].text) ?? 0;
+      total += itemPrice1 * count;
+    }
     return total;
   }
 
@@ -160,64 +160,117 @@ class _ItemsPageState extends State<ItemsPage> {
 
   void Purchase_data() {
     for (int i = 0; i < filterList.length; i++) {
-       itemCode = filterList[i]['item_code'];
-       itemnames = filterList[i]['item_name'];
-       controller = itemControllers[i].text.toString();
-       itemprice   =  filterList[i]['item_price1'].toString();
-    int value =  filterList[i]['item_price1'] * int.tryParse(controller.toString());
-       itemqty = value.toString();
+      itemCode = filterList[i]['item_code'];
+      itemnames = filterList[i]['item_name'];
+      controller = itemControllers[i].text.toString();
+      itemprice   =  filterList[i]['item_price1'].toString();
+      int value =  filterList[i]['item_price1'] * int.tryParse(controller.toString());
+      itemqty = value.toString();
       // Do something with itemCode
-       orderData.add({
-         'comp_code': comp,
-         'ord_date': '${DateTime.now().toString()}',
-         'ord_time': '${DateTime.now().toString()}',
-         'item_code': itemCode,
-         'item_name': itemnames,
-         'item_qty': controller,
-         'item_price': itemprice,
-         'item_tax': null,
-         'item_disc': null,
-         'item_cess': null,
-         'trx_total': itemqty,
-         'status_flag': "0",
-         'act_code': "${widget.item['cust_code']}",
-         'act_name':'${widget.item['cust_name']}',
-         'act_address': "${widget.item['cust_address']}",
-         'act_phone': "${widget.item['cust_phone']}",
-         'act_area': location,
-         'act_type': "${widget.item['cust_type']}",
-         'trx_disc': null,
-         'trx_netamount': null,
-         'user_code': usercode,
-         'user_name': user,
-         'lat_long': '${latitude},${longitude}',
-         'system_name': "$deviceModel",
-         'grand_total': "$grandTotal"
-       });
+      orderData.add({
+        'comp_code': comp,
+        'ord_date': '${DateTime.now().toString()}',
+        'ord_time': '${DateTime.now().toString()}',
+        'item_code': itemCode,
+        'item_name': itemnames,
+        'item_qty': controller,
+        'item_price': itemprice,
+        'item_tax': null,
+        'item_disc': null,
+        'item_cess': null,
+        'trx_total': itemqty,
+        'status_flag': "0",
+        'act_code': "${widget.item['cust_code']}",
+        'act_name':'${widget.item['cust_name']}',
+        'act_address': "${widget.item['cust_address']}",
+        'act_phone': "${widget.item['cust_phone']}",
+        'act_area': location,
+        'act_type': "${widget.item['cust_type']}",
+        'trx_disc': null,
+        'trx_netamount': null,
+        'user_code': usercode,
+        'user_name': user,
+        'lat_long': '${latitude},${longitude}',
+        'system_name': "$deviceModel",
+        'grand_total': "$grandTotal"
+      });
     }
 
   }
 
 
 
-  Future<void> createOrderAPI(List<Map<String, dynamic>> orders) async {
-    final url = Uri.parse('${api}/order'); // Replace with your endpoint
+  Future<void> createOrderAPI(List<Map<String, dynamic>> orderData) async {
+    try {
+      final url = Uri.parse('$api/order'); // Replace with your endpoint
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode(orderData),
-    );
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(orderData),
+      );
 
-    if (response.statusCode == 200) {
-      // Handle success
-      orderData.clear();
-      print('Order placed successfully');
-    } else {
-      // Handle failure
-      print('Failed to place order. Status code: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        // Handle success
+        orderData.clear();
+        print('Order placed successfully');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Order Placed'),
+              content: Text('Your order has been placed successfully.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Handle failure
+        print('Failed to place order. Status code: ${response.statusCode}');
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Something Went Wrong'),
+              // content: Text('Your order has been placed successfully.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('An error occurred while placing your order.'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -244,7 +297,7 @@ class _ItemsPageState extends State<ItemsPage> {
                   backgroundColor: app_color,
                   shape: RoundedRectangleBorder(
                     borderRadius:
-                        BorderRadius.circular(15), // Set the border radius here
+                    BorderRadius.circular(15), // Set the border radius here
                   ), // Set the background color of the button
                 ),
                 onPressed: () {
@@ -333,8 +386,8 @@ class _ItemsPageState extends State<ItemsPage> {
                   color: app_color,
                 ),
                 child:
-                    // user_name,
-                    Text(
+                // user_name,
+                Text(
                   // user_name,
                   '$user',
                   style: GoogleFonts.poppins(
@@ -403,14 +456,14 @@ class _ItemsPageState extends State<ItemsPage> {
                             borderRadius: BorderRadius.circular(8)),
                         child: Center(
                             child: Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          child: Text(
-                            '${getTypeDescription(
-                              widget.item['cust_type'],
-                            )}',
-                            style: GoogleFonts.poppins(color: Colors.white),
-                          ),
-                        )),
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                              child: Text(
+                                '${getTypeDescription(
+                                  widget.item['cust_type'],
+                                )}',
+                                style: GoogleFonts.poppins(color: Colors.white),
+                              ),
+                            )),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -471,180 +524,180 @@ class _ItemsPageState extends State<ItemsPage> {
               ),
               Expanded(
                   child: ListView.builder(
-                itemCount: filterList.length,
-                itemBuilder: (context, index) {
-                  itemControllers.add(TextEditingController(text: '1'));
-                  return Column(
-                    children: [
-                      Dismissible(
-                        key: Key(filterList[index]['item_name']),
-                        onDismissed: (direction) {
-                          setState(() {
-                            filterList.removeAt(index);
-                            itemControllers.removeAt(index);
-                            grandTotal = calculateTotal();
-                          });
-                        },
-                        background: Container(
-                          color: Colors.red,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
-                                child: Text(
-                                  'Cancel',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                    itemCount: filterList.length,
+                    itemBuilder: (context, index) {
+                      itemControllers.add(TextEditingController(text: '1'));
+                      return Column(
+                        children: [
+                          Dismissible(
+                            key: Key(filterList[index]['item_name']),
+                            onDismissed: (direction) {
+                              setState(() {
+                                filterList.removeAt(index);
+                                itemControllers.removeAt(index);
+                                grandTotal = calculateTotal();
+                              });
+                            },
+                            background: Container(
+                              color: Colors.red,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    filterList[index]['item_name'],
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 18,
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 0, 20, 0),
+                                    child: Text(
+                                      'Cancel',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(
-                                    height: 5,
+                                ],
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        filterList[index]['item_name'],
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 5,
+                                      ),
+                                      Row(
+                                        children: [
+                                          // Text('${filterList[index]['item_qty'] - itemController}', style: GoogleFonts.poppins()),
+                                          Text('${filterList[index]['item_qty']}',
+                                              style: GoogleFonts.poppins()),
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                                left: 20, right: 20),
+                                            child: Text(
+                                                '${filterList[index]['item_price1']}',
+                                                style: GoogleFonts.poppins()),
+                                          ),
+
+                                          Text(
+                                              '${filterList[index]['item_price1'] * (int.tryParse(itemControllers[index].text) ?? 0)}',
+                                              style: GoogleFonts.poppins()),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                   Row(
                                     children: [
-                                      // Text('${filterList[index]['item_qty'] - itemController}', style: GoogleFonts.poppins()),
-                                      Text('${filterList[index]['item_qty']}',
-                                          style: GoogleFonts.poppins()),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 20, right: 20),
-                                        child: Text(
-                                            '${filterList[index]['item_price1']}',
-                                            style: GoogleFonts.poppins()),
-                                      ),
+                                      GestureDetector(
+                                        child: CircleAvatar(
+                                          backgroundColor: app_color,
+                                          child: const Text('-',
+                                              style:
+                                              TextStyle(color: Colors.white)),
+                                        ),
+                                        onTap: () {
+                                          setState(() {
+                                            if (int.tryParse(itemControllers[index].text)! > 0) {
+                                              int count = int.tryParse(itemControllers[index].text) ?? 0;
+                                              count--;
+                                              itemControllers[index].text = count.toString();
+                                              grandTotal = calculateTotal();
 
-                                      Text(
-                                          '${filterList[index]['item_price1'] * (int.tryParse(itemControllers[index].text) ?? 0)}',
-                                          style: GoogleFonts.poppins()),
+                                              // Update your total or other calculations here
+                                            }
+                                          });
+                                        },
+                                      ),
+                                      SizedBox(
+                                        width: 50,
+                                        child: TextField(
+                                          controller: itemControllers[index],
+                                          onChanged: (value) {
+                                            setState(() {
+                                              var newValue = int.tryParse(value);
+                                              if (newValue != null) {
+                                                if (newValue > 0) {
+                                                  count = newValue;
+                                                  grandTotal = calculateTotal();
+
+                                                  // Update your total or other calculations here
+                                                } else {
+                                                  // Show an alert dialog if the count exceeds the stock
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return AlertDialog(
+                                                        title:
+                                                        Text('Invalid Count'),
+                                                        content: Text(
+                                                            'Enter a Proper Value Count'),
+                                                        actions: <Widget>[
+                                                          TextButton(
+                                                            onPressed: () {
+                                                              Navigator.of(context)
+                                                                  .pop();
+                                                            },
+                                                            child: Text('OK'),
+                                                          ),
+                                                        ],
+                                                      );
+                                                    },
+                                                  );
+                                                  // Reset the TextField value to the current item count
+                                                  itemControllers[index].text = count.toString();
+                                                }
+                                              }
+                                            });
+                                          },
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          decoration: InputDecoration(
+                                            border: UnderlineInputBorder(
+                                                borderSide: BorderSide.none),
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        child: CircleAvatar(
+                                          backgroundColor: app_color,
+                                          child: const Text('+',
+                                              style:
+                                              TextStyle(color: Colors.white)),
+                                        ),
+                                        onTap: () {
+                                          setState(() {
+                                            int count = int.tryParse(itemControllers[index].text) ?? 0;
+                                            count++;
+                                            itemControllers[index].text = count.toString();
+                                            grandTotal = calculateTotal();
+                                            // print(itemControllers[0].text);
+                                            // Update your total or other calculations here
+                                          });
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ],
                               ),
-                              Row(
-                                children: [
-                                  GestureDetector(
-                                    child: CircleAvatar(
-                                      backgroundColor: app_color,
-                                      child: const Text('-',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                    ),
-                                    onTap: () {
-                                      setState(() {
-                                        if (int.tryParse(itemControllers[index].text)! > 0) {
-                                          int count = int.tryParse(itemControllers[index].text) ?? 0;
-                                          count--;
-                                          itemControllers[index].text = count.toString();
-                                          grandTotal = calculateTotal();
-
-                                          // Update your total or other calculations here
-                                        }
-                                      });
-                                    },
-                                  ),
-                                  SizedBox(
-                                    width: 50,
-                                    child: TextField(
-                                      controller: itemControllers[index],
-                                      onChanged: (value) {
-                                        setState(() {
-                                          var newValue = int.tryParse(value);
-                                          if (newValue != null) {
-                                            if (newValue > 0) {
-                                              count = newValue;
-                                              grandTotal = calculateTotal();
-
-                                              // Update your total or other calculations here
-                                            } else {
-                                              // Show an alert dialog if the count exceeds the stock
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title:
-                                                        Text('Invalid Count'),
-                                                    content: Text(
-                                                        'Enter a Proper Value Count'),
-                                                    actions: <Widget>[
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.of(context)
-                                                              .pop();
-                                                        },
-                                                        child: Text('OK'),
-                                                      ),
-                                                    ],
-                                                  );
-                                                },
-                                              );
-                                              // Reset the TextField value to the current item count
-                                              itemControllers[index].text = count.toString();
-                                            }
-                                          }
-                                        });
-                                      },
-                                      keyboardType: TextInputType.number,
-                                      textAlign: TextAlign.center,
-                                      decoration: InputDecoration(
-                                        border: UnderlineInputBorder(
-                                            borderSide: BorderSide.none),
-                                      ),
-                                    ),
-                                  ),
-                                  GestureDetector(
-                                    child: CircleAvatar(
-                                      backgroundColor: app_color,
-                                      child: const Text('+',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                    ),
-                                    onTap: () {
-                                      setState(() {
-                                        int count = int.tryParse(itemControllers[index].text) ?? 0;
-                                        count++;
-                                        itemControllers[index].text = count.toString();
-                                        grandTotal = calculateTotal();
-                                        // print(itemControllers[0].text);
-                                        // Update your total or other calculations here
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                      Divider(
-                        thickness: 2,
-                        color: app_color.withOpacity(.2),
-                      ),
-                    ],
-                  );
-                },
-              )),
+                          Divider(
+                            thickness: 2,
+                            color: app_color.withOpacity(.2),
+                          ),
+                        ],
+                      );
+                    },
+                  )),
               // ElevatedButton(
               //     onPressed: () {
               //       Purchase_data();
@@ -711,8 +764,8 @@ class _ItemFilterState extends State<ItemFilter> {
             suggestionsCallback: (pattern) async {
               return widget.suggestions
                   .where((item) => item['item_name']
-                      .toLowerCase()
-                      .contains(pattern.toLowerCase()))
+                  .toLowerCase()
+                  .contains(pattern.toLowerCase()))
                   .toList();
             },
             itemBuilder: (context, suggestion) {
@@ -762,10 +815,10 @@ class _ItemFilterState extends State<ItemFilter> {
             },
             onSuggestionSelected: (suggestion) {
               // widget.controller.text = suggestion['item_name'];
-
               widget.onSubmitted!(suggestion['item_name']);
               // Call the callback to handle the selected item
               widget.onItemSelected(suggestion);
+
             },
           ),
         ),

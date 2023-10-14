@@ -61,7 +61,7 @@ class _LoginState extends State<Login> {
 
         // SharedPreferences prefs = await SharedPreferences.getInstance();
         final Map<String, dynamic> data = json.decode(response.body);
-         usercodeset = data['result'][0]['user_id'];
+        usercodeset = data['result'][0]['user_id'];
         prefs.setString('usercode',usercodeset);
         usercode = prefs.getString('usercode');
 
@@ -75,9 +75,37 @@ class _LoginState extends State<Login> {
         // print(usercodeset.runtimeType.toString());
 
       } else {
+        Center(
+          child: AlertDialog(
+            title: Text('Alert'),
+            content: Text('Somthing Went Wrong'),
+            actions: [
+              TextButton(
+                child: Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context); // You might want to handle the exit more gracefully in a production app
+                },
+              ),
+            ],
+          ),
+        );
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
+      Center(
+        child: AlertDialog(
+          title: Text('Error'),
+          content: Text('Somthing Went Wrong'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.pop(context); // You might want to handle the exit more gracefully in a production app
+              },
+            ),
+          ],
+        ),
+      );
       print('Error: $e');
     }
   }
