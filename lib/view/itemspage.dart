@@ -40,6 +40,10 @@ class _ItemsPageState extends State<ItemsPage> {
 
   String deviceModel = '';
 
+  void clear(){
+    itemController.clear();
+  }
+
   Future<void> getDeviceName() async {
     DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
     if (Platform.isAndroid) {
@@ -94,11 +98,11 @@ class _ItemsPageState extends State<ItemsPage> {
   // String? user_name;
   int calculateTotal() {
     int total = 0;
-    for (int index = 0; index < filterList.length; index++) {
-      int itemPrice1 = filterList[index]['item_price1'];
-      int count = int.tryParse(itemControllers[index].text) ?? 0;
-      total += itemPrice1 * count;
-    }
+      for (int index = 0; index < filterList.length; index++) {
+        int itemPrice1 = filterList[index]['item_price1'];
+        int count = int.tryParse(itemControllers[index].text) ?? 0;
+        total += itemPrice1 * count;
+      }
     return total;
   }
 
@@ -194,6 +198,8 @@ class _ItemsPageState extends State<ItemsPage> {
 
   }
 
+
+
   Future<void> createOrderAPI(List<Map<String, dynamic>> orders) async {
     final url = Uri.parse('${api}/order'); // Replace with your endpoint
 
@@ -214,6 +220,8 @@ class _ItemsPageState extends State<ItemsPage> {
       print('Failed to place order. Status code: ${response.statusCode}');
     }
   }
+
+  int total = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -243,6 +251,7 @@ class _ItemsPageState extends State<ItemsPage> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
+                      // int total = 0;
                       return AlertDialog(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
@@ -251,7 +260,7 @@ class _ItemsPageState extends State<ItemsPage> {
                         content: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('Amount   $grandTotal' ),
+                            Text('Amount  :  $grandTotal' ),
                           ],
                         ),
                         actions: <Widget>[
@@ -342,13 +351,13 @@ class _ItemsPageState extends State<ItemsPage> {
                   style: GoogleFonts.poppins(),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.shopping_cart),
-                title: Text(
-                  'Balance',
-                  style: GoogleFonts.poppins(),
-                ),
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.shopping_cart),
+              //   title: Text(
+              //     'Balance',
+              //     style: GoogleFonts.poppins(),
+              //   ),
+              // ),
               GestureDetector(
                 onTap: ()async{
                   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -674,6 +683,7 @@ class ItemFilter extends StatefulWidget {
 }
 
 class _ItemFilterState extends State<ItemFilter> {
+
   @override
   Widget build(BuildContext context) {
     return Padding(

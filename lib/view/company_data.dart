@@ -158,13 +158,13 @@ Future<void> CustLocation() async{
                 style: GoogleFonts.poppins(),
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.shopping_cart),
-              title: Text(
-                'Balance',
-                style: GoogleFonts.poppins(),
-              ),
-            ),
+            // ListTile(
+            //   leading: const Icon(Icons.shopping_cart),
+            //   title: Text(
+            //     'Balance',
+            //     style: GoogleFonts.poppins(),
+            //   ),
+            // ),
             GestureDetector(
               onTap: ()async{
                 SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -489,7 +489,7 @@ class _AreaFilterState extends State<AreaFilter> {
         },
         onSuggestionSelected: (suggestion) {
 
-          widget.controller.text = suggestion['cust_name'];
+          // widget.controller.text = suggestion['cust_name'];
           setState(() {
             selectedName = suggestion['cust_name'];
           });
