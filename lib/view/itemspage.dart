@@ -205,6 +205,7 @@ class _ItemsPageState extends State<ItemsPage> {
 
   Future<void> createOrderAPI(List<Map<String, dynamic>> value) async {
     try {
+
       final url = Uri.parse('$api/order'); // Replace with your endpoint
 
       final response = await http.post(
@@ -214,6 +215,8 @@ class _ItemsPageState extends State<ItemsPage> {
       );
 
       if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+       dynamic orderno = data;
         orderData.clear();
         filterList.clear();
         // Handle success
@@ -221,15 +224,28 @@ class _ItemsPageState extends State<ItemsPage> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
+            // int total = 0;
             return AlertDialog(
-              title: Text('Order Placed'),
-              content: Text('Your order has been placed successfully.'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              title: Center(child: Text('order placed successfully',overflow: TextOverflow.ellipsis,style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
+              content: Text('Order No  :  $orderno' ),
               actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompanyData(),));
-                  },
-                  child: Text('OK'),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
+                  child: SizedBox(
+                    height: 30,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, backgroundColor: app_color, // text color
+                      ),
+                      child: Text('ok'),
+                      onPressed: () {
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompanyData(),));
+                      },
+                    ),
+                  ),
                 ),
               ],
             );
@@ -241,16 +257,28 @@ class _ItemsPageState extends State<ItemsPage> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
+            // int total = 0;
             return AlertDialog(
-              title: Text('Something Went Wrong'),
-              // content: Text('Your order has been placed successfully.'),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              title: Center(child: Text('Something Went Wrong !',overflow: TextOverflow.ellipsis,style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
+              // content: Text('' ),
               actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
+                Padding(
+                  padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
+                  child: SizedBox(
+                    height: 30,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white, backgroundColor: Colors.black, // text color
+                      ),
+                      child: Text('ok'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
                 ),
               ],
             );
@@ -303,9 +331,9 @@ class _ItemsPageState extends State<ItemsPage> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Note : Confirmed order cannot be edited !',style: TextStyle(fontSize: 10,overflow: TextOverflow.ellipsis, ),),
+                              Text('Note : Confirmed order cannot be edited !',style: TextStyle(fontSize: 11,overflow: TextOverflow.ellipsis, ),),
                               SizedBox(height: 10,),
-                              Text('Amount  :  $grandTotal' ),
+                              Text('Amount  :  ${grandTotal ?? 0}' ),
                             ],
                           ),
                         ),
@@ -319,8 +347,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                   height: 30,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.black, // background color
-                                      onPrimary: Colors.white, // text color
+                                      foregroundColor: Colors.white, backgroundColor: Colors.black, // text color
                                     ),
                                     child: Text('Cancel'),
                                     onPressed: () {
@@ -332,7 +359,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                   height: 30,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color.fromARGB(225,141, 182, 244,), // background color
+                                      backgroundColor: app_color, // background color
                                       onPrimary: Colors.white, // text color
                                     ),
                                     child: Text('Confirm'),
