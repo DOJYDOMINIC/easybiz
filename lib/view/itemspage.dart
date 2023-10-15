@@ -227,7 +227,7 @@ class _ItemsPageState extends State<ItemsPage> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompanyData(),));
                   },
                   child: Text('OK'),
                 ),
@@ -297,12 +297,17 @@ class _ItemsPageState extends State<ItemsPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15.0),
                         ),
-                        title: Center(child: Text('Do you want to confirm ?',style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
-                        content: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Amount  :  $grandTotal' ),
-                          ],
+                        title: Center(child: Text('Do you want to confirm ?',overflow: TextOverflow.ellipsis,style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
+                        content: Container(
+                          height: 50,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Note : Confirmed order cannot be edited !',style: TextStyle(fontSize: 10,overflow: TextOverflow.ellipsis, ),),
+                              SizedBox(height: 10,),
+                              Text('Amount  :  $grandTotal' ),
+                            ],
+                          ),
                         ),
                         actions: <Widget>[
                           Padding(
