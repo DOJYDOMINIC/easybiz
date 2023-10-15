@@ -123,7 +123,9 @@ class _LoginState extends State<Login> {
           FocusScope.of(context).unfocus();
         }
       },
+
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Form(
           key: _formKey,
           child: Stack(
@@ -145,19 +147,36 @@ class _LoginState extends State<Login> {
               ),
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 60),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        'Login here',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 30,
-                          color: app_color,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Easy',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 50,
+                                color: app_color,
+                              ),
+                            ),
+                            Text(
+                              'Biz',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 30,
+                                color: orng,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
                             'Welcome back you’ve ',
@@ -193,66 +212,58 @@ class _LoginState extends State<Login> {
                               password = value;
                             },
                           ),
-                          // TextFieldOne(
-                          //   hinttext: 'Company Code',
-                          //   controller: _compcode,
-                          //   obsecuretxt: false,
-                          //   onchange: (value) {
-                          //     compcode = value;
-                          //   },
-                          // ),
                         ],
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            // if (_formKey.currentState!.validate()) {
-                            isPressed = !isPressed;
-                            loginApi(username,password);
-                            print(username);
-                            print(compcode);
-                            print(password);
-                            // }
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          height: 60,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            gradient: isPressed
-                                ? LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [app_color, Colors.blueAccent],
-                            )
-                                : LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [Colors.blueAccent, app_color],
+                      Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (_formKey.currentState!.validate()) {
+                              isPressed = !isPressed;
+                              loginApi(username,password);
+                              }
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: Duration(milliseconds: 300),
+                            height: 60,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              gradient: isPressed
+                                  ? LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [app_color, app_color],
+                              )
+                                  : LinearGradient(
+                                begin: Alignment.centerLeft,
+                                end: Alignment.centerRight,
+                                colors: [orng, orng],
+                              ),
+                              boxShadow: isPressed
+                                  ? [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  spreadRadius: 1,
+                                  blurRadius: 5,
+                                  offset: Offset(2, 2),
+                                ),
+                              ]
+                                  : [
+                                BoxShadow(
+                                  color: Colors.transparent,
+                                ),
+                              ],
                             ),
-                            boxShadow: isPressed
-                                ? [
-                              BoxShadow(
-                                color: Colors.black26,
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                                offset: Offset(2, 2),
-                              ),
-                            ]
-                                : [
-                              BoxShadow(
-                                color: Colors.transparent,
-                              ),
-                            ],
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Sign In',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
+                            child: Center(
+                              child: Text(
+                                'Sign In',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),

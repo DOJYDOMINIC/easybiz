@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:easybiz/view/item_price.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -23,62 +24,15 @@ class CompanyData extends StatefulWidget {
 }
 
 class _CompanyDataState extends State<CompanyData> {
-  // List finalData = [];
   List SelectedData = [];
 
   @override
   void initState() {
     super.initState();
-    // AreaApi_all();
-    // CustLocation();
     SelectedArea();
     custarea;
-    // '${prefs.getString('location')}'
   }
 
-  // Future<void> CustLocation() async{
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //
-  //   if(prefs.getString('location') != null){
-  //     locationcontroller.text = prefs.getString('location')!;
-  //     SelectedArea(locationcontroller.text);
-  //
-  //   }else{
-  //     locationcontroller.text;
-  //   }
-  // }
-
-  // Future<void> AreaApi_all() async {
-  //   try {
-  //     final uri = Uri.parse('$api/area');
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     final requestBody = {
-  //       'compcode': '10001',
-  //     };
-  //
-  //     final response = await http.post(
-  //       uri,
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: json.encode(requestBody),
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> data = json.decode(response.body);
-  //       setState(() {
-  //         if(data['data']!=[]){
-  //           finalData = data['data'];
-  //         }
-  //         print(finalData.toString());
-  //       });
-  //     } else {
-  //       print('Error: ${response.statusCode}');
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }
 
   void Area()async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -98,7 +52,6 @@ class _CompanyDataState extends State<CompanyData> {
           if (custarea != null) {
             setState(() {
               locationcontroller.text = custarea!;
-
             });
           } else {
             setState(() {
@@ -174,6 +127,18 @@ class _CompanyDataState extends State<CompanyData> {
                 ),
               ),
             ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ItemPriceData(data:SelectedData ),));
+              },
+              child: ListTile(
+                leading: const Icon(Icons.attach_money_outlined),
+                title: Text(
+                  'Price List',
+                  style: GoogleFonts.poppins(),
+                ),
+              ),
+            ),
             ListTile(
               leading: const Icon(Icons.shopping_cart),
               title: Text(
@@ -181,13 +146,7 @@ class _CompanyDataState extends State<CompanyData> {
                 style: GoogleFonts.poppins(),
               ),
             ),
-            // ListTile(
-            //   leading: const Icon(Icons.shopping_cart),
-            //   title: Text(
-            //     'Balance',
-            //     style: GoogleFonts.poppins(),
-            //   ),
-            // ),
+
             GestureDetector(
               onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -265,8 +224,8 @@ class _CompanyDataState extends State<CompanyData> {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
                         width: 2,
-                        color: app_color
-                            .withOpacity(.5)), // Border color when not in focus
+                        color: orng
+                            .withOpacity(.3)), // Border color when not in focus
                   ),
                   hintText: 'Shop Search',
                   labelStyle:
@@ -463,8 +422,8 @@ class _CustomAutoCompleteTextFieldState
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
                     width: 2,
-                    color: Color.fromARGB(255, 31, 65, 188)
-                        .withOpacity(.5)), // Border color when not in focus
+                    color: orng
+                        .withOpacity(.3)), // Border color when not in focus
               ),
               hintText: 'Location',
               labelStyle:
