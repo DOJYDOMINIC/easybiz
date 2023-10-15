@@ -6,8 +6,8 @@ import 'view/login.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  user = prefs.getString('user');
-  comp = prefs.getString('comp');
+  user = prefs.getString('user')!;
+  comp = prefs.getString('comp')!;
 
   runApp(MyApp());
 }

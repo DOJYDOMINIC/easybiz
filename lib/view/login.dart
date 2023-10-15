@@ -9,8 +9,6 @@ import 'company_data.dart';
 
 
 String? user;
-String? comp;
-String? usercode;
 
 
 class Login extends StatefulWidget {
@@ -32,7 +30,7 @@ class _LoginState extends State<Login> {
 
 
 
-  Future<void> loginApi(String username, String password, String compcode) async {
+  Future<void> loginApi(String username, String password,) async {
     var usercodeset;
 
 
@@ -56,15 +54,14 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString('user', username);
-        prefs.setString('comp', compcode);
         user = prefs.getString('user');
-        comp = prefs.getString('comp');
         // SharedPreferences prefs = await SharedPreferences.getInstance();
         final Map<String, dynamic> data = json.decode(response.body);
         usercodeset = data['result'][0]['user_id'];
         compcode = data['result'][0]['comp_code'];
         prefs.setString('usercode',usercodeset);
-        usercode = prefs.getString('usercode');
+        prefs.setString('comp', compcode);
+
 
         print(data.toString());
         // Now, you can navigate to the CompanyData page
@@ -116,7 +113,7 @@ class _LoginState extends State<Login> {
 
   TextEditingController _username = TextEditingController();
   TextEditingController _password = TextEditingController();
-  TextEditingController _compcode = TextEditingController();
+  // TextEditingController _compcode = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -196,14 +193,14 @@ class _LoginState extends State<Login> {
                               password = value;
                             },
                           ),
-                          TextFieldOne(
-                            hinttext: 'Company Code',
-                            controller: _compcode,
-                            obsecuretxt: false,
-                            onchange: (value) {
-                              compcode = value;
-                            },
-                          ),
+                          // TextFieldOne(
+                          //   hinttext: 'Company Code',
+                          //   controller: _compcode,
+                          //   obsecuretxt: false,
+                          //   onchange: (value) {
+                          //     compcode = value;
+                          //   },
+                          // ),
                         ],
                       ),
                       GestureDetector(
@@ -211,7 +208,7 @@ class _LoginState extends State<Login> {
                           setState(() {
                             // if (_formKey.currentState!.validate()) {
                             isPressed = !isPressed;
-                            loginApi(username,password,compcode);
+                            loginApi(username,password);
                             print(username);
                             print(compcode);
                             print(password);

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../const.dart';
 import 'dart:io';
 
+import 'company_data.dart';
 import 'login.dart';
 
 String itemname = '';
@@ -120,7 +121,7 @@ class _ItemsPageState extends State<ItemsPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       location = prefs.getString('location');
-      comp = prefs.getString('comp');
+      // comp = prefs.getString('comp');
       final requestBody = {
         'compcode': comp,
         // 'custcode': widget.item['cust_code'],
@@ -202,17 +203,19 @@ class _ItemsPageState extends State<ItemsPage> {
 
 
 
-  Future<void> createOrderAPI(List<Map<String, dynamic>> orderData) async {
+  Future<void> createOrderAPI(List<Map<String, dynamic>> value) async {
     try {
       final url = Uri.parse('$api/order'); // Replace with your endpoint
 
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(orderData),
+        body: json.encode(value),
       );
-      print(comp);
+
       if (response.statusCode == 200) {
+        orderData.clear();
+        filterList.clear();
         // Handle success
         // print('Order placed successfully');
         showDialog(
@@ -224,7 +227,6 @@ class _ItemsPageState extends State<ItemsPage> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    orderData.clear();
                     Navigator.of(context).pop();
                   },
                   child: Text('OK'),
@@ -245,6 +247,7 @@ class _ItemsPageState extends State<ItemsPage> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
+
                     Navigator.of(context).pop();
                   },
                   child: Text('OK'),

@@ -8,9 +8,11 @@ import '../const.dart';
 import 'itemspage.dart';
 import 'login.dart';
 
-
 String? selectedName;
 String? username;
+String? custarea;
+String? usercode;
+String comp ='';
 
 
 class CompanyData extends StatefulWidget {
@@ -21,73 +23,98 @@ class CompanyData extends StatefulWidget {
 }
 
 class _CompanyDataState extends State<CompanyData> {
-
-
-  List finalData = [];
+  // List finalData = [];
   List SelectedData = [];
 
   @override
   void initState() {
     super.initState();
-    AreaApi_all();
-    CustLocation();
+    // AreaApi_all();
+    // CustLocation();
+    SelectedArea();
+    custarea;
     // '${prefs.getString('location')}'
   }
 
-  Future<void> CustLocation() async{
+  // Future<void> CustLocation() async{
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //
+  //   if(prefs.getString('location') != null){
+  //     locationcontroller.text = prefs.getString('location')!;
+  //     SelectedArea(locationcontroller.text);
+  //
+  //   }else{
+  //     locationcontroller.text;
+  //   }
+  // }
+
+  // Future<void> AreaApi_all() async {
+  //   try {
+  //     final uri = Uri.parse('$api/area');
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     final requestBody = {
+  //       'compcode': '10001',
+  //     };
+  //
+  //     final response = await http.post(
+  //       uri,
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: json.encode(requestBody),
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> data = json.decode(response.body);
+  //       setState(() {
+  //         if(data['data']!=[]){
+  //           finalData = data['data'];
+  //         }
+  //         print(finalData.toString());
+  //       });
+  //     } else {
+  //       print('Error: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error: $e');
+  //   }
+  // }
+
+  void Area()async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    if(prefs.getString('location') != null){
-      locationcontroller.text = prefs.getString('location')!;
-      SelectedArea(locationcontroller.text);
-
-    }else{
-      locationcontroller.text;
-    }
+    prefs.setString('location', locationcontroller.text);
   }
 
-  Future<void> AreaApi_all() async {
+  Future<void> SelectedArea() async {
     try {
-      final uri = Uri.parse('$api/area');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final requestBody = {
-        'compcode': '${prefs.getString('comp')}',
-      };
+      try{
+        if (mounted) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          custarea = prefs.getString('location');
+          usercode = prefs.getString('usercode');
+          comp = prefs.getString('comp')!;
 
-      final response = await http.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(requestBody),
-      );
+          comp = prefs.getString('comp')??'';
+          if (custarea != null) {
+            setState(() {
+              locationcontroller.text = custarea!;
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        setState(() {
-          if(data['data']!=[]){
-            finalData = data['data'];
+            });
+          } else {
+            setState(() {
+              locationcontroller;
+            });
           }
-          print(finalData.toString());
-        });
-      } else {
-        print('Error: ${response.statusCode}');
+        }
+      }catch(e){
+        print('locationcontroller $e');
       }
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
 
-  Future<void> SelectedArea(String value) async {
-    try {
       final uri = Uri.parse('${api}/cust');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('location', value);
-      username = prefs.getString('user');
-      prefs.getString('user');
+
+      // prefs.getString('user');
       final requestBody = {
-        'area' : locationcontroller.text,
-        'compcode': '${prefs.getString('comp')}',
+        'compcode': comp,
       };
       final response = await http.post(
         uri,
@@ -118,10 +145,8 @@ class _CompanyDataState extends State<CompanyData> {
     }
   }
 
-
   TextEditingController locationcontroller = TextEditingController();
   TextEditingController selectedController = TextEditingController();
-
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +173,6 @@ class _CompanyDataState extends State<CompanyData> {
                   ),
                 ),
               ),
-
             ),
             ListTile(
               leading: const Icon(Icons.shopping_cart),
@@ -165,10 +189,14 @@ class _CompanyDataState extends State<CompanyData> {
             //   ),
             // ),
             GestureDetector(
-              onTap: ()async{
+              onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 prefs.clear();
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Login(),));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => Login(),
+                    ));
               },
               child: ListTile(
                 leading: const Icon(Icons.logout),
@@ -182,7 +210,7 @@ class _CompanyDataState extends State<CompanyData> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 40,left: 20,right: 10),
+        padding: const EdgeInsets.only(top: 40, left: 20, right: 10),
         child: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -203,120 +231,181 @@ class _CompanyDataState extends State<CompanyData> {
                   SizedBox(
                     width: 180,
                     child: CustomAutoCompleteTextField(
-                      suggestions: finalData,
+                      suggestions: SelectedData,
                       hintText: 'Location',
                       controller: locationcontroller,
                       onChanged: (value) {
-                        setState(() {
-                        });
+                        setState(() {});
                       },
                       onSubmitted: (value) {
+                        Area();
                         // setState(() {});
-                        SelectedArea(value);
-                        print(value);
+                        // SelectedArea();
                       },
                     ),
                   ),
                 ],
               ),
-              AreaFilter(
-                suggestions: SelectedData,
-                hintText: 'Item Search',
+              TextField(
                 controller: selectedController,
-                onChanged: (value) {
-                  setState(() {});
+                onChanged: (pattern) {
+                  setState(() {
+                    SelectedData.where((item) => item['cust_area']
+                        .toLowerCase()
+                        .contains(pattern.toLowerCase()));
+                  });
                 },
-                onSubmitted: (value) {
-                  setState(() {});
-                },
+                decoration: InputDecoration(
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                  ),
+                  errorBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.transparent)),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                        width: 2,
+                        color: app_color
+                            .withOpacity(.5)), // Border color when not in focus
+                  ),
+                  hintText: 'Shop Search',
+                  labelStyle:
+                      GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),
+                  fillColor: Colors.white,
+                  filled: true,
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                        width: 2,
+                        color: app_color), // Border color when focused
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                      borderSide: BorderSide(color: Colors.white)),
+                ),
+//         ),
               ),
+              // AreaFilter(
+              //   suggestions: SelectedData,
+              //   hintText: 'Item Search',
+              //   controller: selectedController,
+              //   onChanged: (value) {
+              //     setState(() {});
+              //   },
+              //   onSubmitted: (value) {
+              //     setState(() {});
+              //   },
+              // ),
+              SizedBox(height: 15),
               Expanded(
                   child: ListView.builder(
-                    itemCount: SelectedData.length,
-                    itemBuilder: (context, index) {
-                      // Check if selectedName is not null and filter by cust_name
-                      if (selectedName != null &&
-                          SelectedData[index]['cust_name'] != selectedName) {
-                        // Skip this item if it doesn't match the selected cust_name
-                        return SizedBox.shrink();
-                      }
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ItemsPage(item: SelectedData[index]),));
-                        },
+                itemCount: SelectedData.length,
+                itemBuilder: (context, index) {
+                  // Check if selectedName is not null and filter by cust_name
+                  if (selectedController.text.isNotEmpty &&
+                      !SelectedData[index]['cust_name']
+                          .toLowerCase()
+                          .contains(selectedController.text.toLowerCase())  || locationcontroller.text.isNotEmpty &&
+                      !SelectedData[index]['cust_area']
+                          .toLowerCase()
+                          .contains(locationcontroller.text.toLowerCase())) {
+                    return SizedBox.shrink();
+                  }
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                ItemsPage(item: SelectedData[index]),
+                          ));
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                      child: Container(
+                        // height: MediaQuery.of(context).size.height/5,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          border: Border.all(color: app_color),
+                        ),
                         child: Padding(
-                          padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          child: Container(
-                            // height: MediaQuery.of(context).size.height/5,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              border: Border.all(color: app_color),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(SelectedData[index]['cust_name'],
-                                            style: GoogleFonts.poppins(
-                                                fontWeight: FontWeight.w500, fontSize: 20),
-                                          ),
-                                          SizedBox(
-                                            height: 10,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                    SelectedData[index]['cust_area'],
-                                                    style: GoogleFonts.poppins(
-                                                        color: Colors.grey.shade600)),
-                                                Text(
-                                                    SelectedData[index]['cust_address'],
-                                                    style: GoogleFonts.poppins(
-                                                        color: Colors.grey.shade600)),
-                                                Text(
-                                                    'Ph : ${SelectedData[index]['cust_phone']}',
-                                                    style: GoogleFonts.poppins(
-                                                        color: Colors.grey.shade600)),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
+                                      Text(
+                                        SelectedData[index]['cust_name'],
+                                        style: GoogleFonts.poppins(
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 20),
                                       ),
-                                      Container(
-                                        height: 25,
-                                        decoration: BoxDecoration(
-                                            color: app_color,
-                                            borderRadius: BorderRadius.circular(8)),
-                                        child: Center(
-                                            child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                              child: Text('${getTypeDescription(SelectedData[index]['cust_type'],)}',
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                                SelectedData[index]
+                                                    ['cust_area'],
                                                 style: GoogleFonts.poppins(
-                                                    color: Colors.white),
-                                              ),
-                                            )),
+                                                    color:
+                                                        Colors.grey.shade600)),
+                                            Text(
+                                                SelectedData[index]
+                                                    ['cust_address'],
+                                                style: GoogleFonts.poppins(
+                                                    color:
+                                                        Colors.grey.shade600)),
+                                            Text(
+                                                'Ph : ${SelectedData[index]['cust_phone']}',
+                                                style: GoogleFonts.poppins(
+                                                    color:
+                                                        Colors.grey.shade600)),
+                                          ],
+                                        ),
                                       ),
                                     ],
-                                  )
+                                  ),
+                                  Container(
+                                    height: 25,
+                                    decoration: BoxDecoration(
+                                        color: app_color,
+                                        borderRadius: BorderRadius.circular(8)),
+                                    child: Center(
+                                        child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 0, 10, 0),
+                                      child: Text(
+                                        '${getTypeDescription(
+                                          SelectedData[index]['cust_type'],
+                                        )}',
+                                        style: GoogleFonts.poppins(
+                                            color: Colors.white),
+                                      ),
+                                    )),
+                                  ),
                                 ],
-                              ),
-                            ),
+                              )
+                            ],
                           ),
                         ),
-                      );
-                    },
-                  )
-              ),
+                      ),
+                    ),
+                  );
+                },
+              )),
             ],
           ),
         ),
@@ -325,27 +414,29 @@ class _CompanyDataState extends State<CompanyData> {
   }
 }
 
-
 class CustomAutoCompleteTextField extends StatefulWidget {
   const CustomAutoCompleteTextField(
       {Key? key,
-        required this.suggestions,
-        required this.hintText,
-        required this.controller,
-        this.onSubmitted,
-        required this.onChanged})
+      required this.suggestions,
+      required this.hintText,
+      required this.controller,
+      this.onSubmitted,
+      required this.onChanged})
       : super(key: key);
   final List suggestions; // List of suggestions for AutoCompleteTextField
   final String hintText; // Hint text for the field
   final TextEditingController controller;
   final ValueChanged<String>?
-  onSubmitted; // Callback when user submits a suggestion
+      onSubmitted; // Callback when user submits a suggestion
   final ValueChanged<String> onChanged;
+
   @override
-  State<CustomAutoCompleteTextField> createState() => _CustomAutoCompleteTextFieldState();
+  State<CustomAutoCompleteTextField> createState() =>
+      _CustomAutoCompleteTextFieldState();
 }
 
-class _CustomAutoCompleteTextFieldState extends State<CustomAutoCompleteTextField> {
+class _CustomAutoCompleteTextFieldState
+    extends State<CustomAutoCompleteTextField> {
   // Callback when user changes the input
   @override
   Widget build(BuildContext context) {
@@ -361,34 +452,36 @@ class _CustomAutoCompleteTextFieldState extends State<CustomAutoCompleteTextFiel
             textCapitalization: TextCapitalization.words,
             controller: widget.controller,
             onChanged: widget.onChanged,
-            decoration: InputDecoration(suffixIcon:Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-              // child: Icon(sufix,color: Colors.grey,size: 30,),
-            ) ,errorBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+            decoration: InputDecoration(
+              suffixIcon: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                // child: Icon(sufix,color: Colors.grey,size: 30,),
+              ),
+              errorBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.transparent)),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
                     width: 2,
-                    color:  Color.fromARGB(255, 31, 65, 188).withOpacity(.5)), // Border color when not in focus
+                    color: Color.fromARGB(255, 31, 65, 188)
+                        .withOpacity(.5)), // Border color when not in focus
               ),
               hintText: 'Location',
-              labelStyle: GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),
+              labelStyle:
+                  GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),
               fillColor: Colors.white,
               filled: true,
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
-                    width: 2,
-                    color:app_color), // Border color when focused
+                    width: 2, color: app_color), // Border color when focused
               ),
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                   borderSide: BorderSide(color: Colors.white)),
-
             ),
           ),
-          suggestionsCallback: (pattern) async{
-
+          suggestionsCallback: (pattern) {
             return widget.suggestions.where((item) => item['cust_area'].toLowerCase().contains(pattern.toLowerCase()));
           },
           itemBuilder: (context, suggestion) {
@@ -410,87 +503,87 @@ class _CustomAutoCompleteTextFieldState extends State<CustomAutoCompleteTextFiel
   }
 }
 
-class AreaFilter extends StatefulWidget {
-  const AreaFilter(
-      {Key? key,
-        required this.suggestions,
-        required this.hintText,
-        required this.controller,
-        this.onSubmitted,
-        required this.onChanged})
-      : super(key: key);
-  final List suggestions; // List of suggestions for AutoCompleteTextField
-  final String hintText; // Hint text for the field
-  final TextEditingController controller;
-  final ValueChanged<String>?onSubmitted; // Callback when user submits a suggestion
-  final ValueChanged<String> onChanged;
-  @override
-  State<AreaFilter> createState() => _AreaFilterState();
-}
-
-class _AreaFilterState extends State<AreaFilter> {
-  // Callback when user changes the input
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TypeAheadFormField(
-        enabled: false,
-        autoFlipMinHeight: 10,
-        minCharsForSuggestions: 1,
-        textFieldConfiguration: TextFieldConfiguration(
-          textCapitalization: TextCapitalization.words,
-          controller: widget.controller,
-          onChanged: widget.onChanged,
-          decoration: InputDecoration(suffixIcon:Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-            // child: Icon(sufix,color: Colors.grey,size: 30,),
-          ) ,errorBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                  width: 2,
-                  color:  app_color.withOpacity(.5)), // Border color when not in focus
-            ),
-            hintText: 'Shop Search',
-            labelStyle: GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),
-            fillColor:  Colors.white,
-            filled: true,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(
-                  width: 2,
-                  color:app_color), // Border color when focused
-            ),
-            border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Colors.white)),
-
-          ),
-        ),
-        suggestionsCallback: (pattern) async{
-
-          return widget.suggestions.where((item) => item['cust_name'].toLowerCase().contains(pattern.toLowerCase()));
-        },
-
-        itemBuilder: (context, suggestion) {
-          return ListTile(
-            title: Text(suggestion['cust_name']),
-            // subtitle: Text(suggestion['cust_name']),
-          );
-        },
-        transitionBuilder: (context, suggestionsBox, controller) {
-          return suggestionsBox;
-        },
-        onSuggestionSelected: (suggestion) {
-
-          // widget.controller.text = suggestion['cust_name'];
-          setState(() {
-            selectedName = suggestion['cust_name'];
-          });
-          widget.onSubmitted!(suggestion['cust_name']);
-        },
-      ),
-    );
-  }
-}
+// class AreaFilter extends StatefulWidget {
+//   const AreaFilter(
+//       {Key? key,
+//         required this.suggestions,
+//         required this.hintText,
+//         required this.controller,
+//         this.onSubmitted,
+//         required this.onChanged})
+//       : super(key: key);
+//   final List suggestions; // List of suggestions for AutoCompleteTextField
+//   final String hintText; // Hint text for the field
+//   final TextEditingController controller;
+//   final ValueChanged<String>?onSubmitted; // Callback when user submits a suggestion
+//   final ValueChanged<String> onChanged;
+//   @override
+//   State<AreaFilter> createState() => _AreaFilterState();
+// }
+//
+// class _AreaFilterState extends State<AreaFilter> {
+//   // Callback when user changes the input
+//   @override
+//   Widget build(BuildContext context) {
+//     return Padding(
+//       padding: const EdgeInsets.only(bottom: 16),
+//       child: TypeAheadFormField(
+//         enabled: false,
+//         autoFlipMinHeight: 10,
+//         minCharsForSuggestions: 1,
+//         textFieldConfiguration: TextFieldConfiguration(
+//           textCapitalization: TextCapitalization.words,
+//           controller: widget.controller,
+//           onChanged: widget.onChanged,
+//           decoration: InputDecoration(suffixIcon:Padding(
+//             padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+//             // child: Icon(sufix,color: Colors.grey,size: 30,),
+//           ) ,errorBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
+//             enabledBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10),
+//               borderSide: BorderSide(
+//                   width: 2,
+//                   color:  app_color.withOpacity(.5)), // Border color when not in focus
+//             ),
+//             hintText: 'Shop Search',
+//             labelStyle: GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),
+//             fillColor:  Colors.white,
+//             filled: true,
+//             focusedBorder: OutlineInputBorder(
+//               borderRadius: BorderRadius.circular(10),
+//               borderSide: BorderSide(
+//                   width: 2,
+//                   color:app_color), // Border color when focused
+//             ),
+//             border: OutlineInputBorder(
+//                 borderRadius: BorderRadius.circular(20),
+//                 borderSide: BorderSide(color: Colors.white)),
+//
+//           ),
+//         ),
+//         suggestionsCallback: (pattern) async{
+//
+//           return widget.suggestions.where((item) => item['cust_name'].toLowerCase().contains(pattern.toLowerCase()));
+//         },
+//
+//         itemBuilder: (context, suggestion) {
+//           return ListTile(
+//             title: Text(suggestion['cust_name']),
+//             // subtitle: Text(suggestion['cust_name']),
+//           );
+//         },
+//         transitionBuilder: (context, suggestionsBox, controller) {
+//           return suggestionsBox;
+//         },
+//         onSuggestionSelected: (suggestion) {
+//
+//           // widget.controller.text = suggestion['cust_name'];
+//           setState(() {
+//             selectedName = suggestion['cust_name'];
+//           });
+//           widget.onSubmitted!(suggestion['cust_name']);
+//         },
+//       ),
+//     );
+//   }
+// }
