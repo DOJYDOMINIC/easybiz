@@ -32,7 +32,7 @@ class TextFieldOne extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide(
                 width: 2,
-                  color:  orng.withOpacity(.2)), // Border color when not in focus
+                  color:app_color.withOpacity(.2)), // Border color when not in focus
             ),
             hintText: hinttext,
             labelStyle: GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),

@@ -197,7 +197,7 @@ int calculateTotal() {
         'user_name': user,
         'lat_long': '${latitude},${longitude}',
         'system_name': "$deviceModel",
-        'grand_total': "$grandTotal"
+        'grand_total': "${calculateTotal()}"
       });
     }
 
@@ -416,6 +416,13 @@ int calculateTotal() {
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.attach_money_outlined),
+                title: Text(
+                  'Price List',
+                  style: GoogleFonts.poppins(),
                 ),
               ),
               ListTile(

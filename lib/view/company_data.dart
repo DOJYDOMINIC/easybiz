@@ -224,7 +224,7 @@ class _CompanyDataState extends State<CompanyData> {
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
                         width: 2,
-                        color: orng
+                        color: app_color
                             .withOpacity(.3)), // Border color when not in focus
                   ),
                   hintText: 'Shop Search',
@@ -422,7 +422,7 @@ class _CustomAutoCompleteTextFieldState
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide(
                     width: 2,
-                    color: orng
+                    color: app_color
                         .withOpacity(.3)), // Border color when not in focus
               ),
               hintText: 'Location',
