@@ -298,7 +298,7 @@ class _CompanyDataState extends State<CompanyData> {
               // ),
               SizedBox(height: 15),
               Expanded(
-                  child: ListView.builder(
+                  child:SelectedData.isEmpty ? Center(child: CircularProgressIndicator()) : ListView.builder(
                 itemCount: SelectedData.length,
                 itemBuilder: (context, index) {
                   // Check if selectedName is not null and filter by cust_name

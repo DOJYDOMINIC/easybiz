@@ -95,14 +95,16 @@ class _ItemsPageState extends State<ItemsPage> {
   TextEditingController itemController = TextEditingController();
 
   // TextEditingController itemControllers = TextEditingController();
+  // int total = calculateTotal();
 
-  // String? user_name;
-  int calculateTotal() {
+int calculateTotal() {
     int total = 0;
-    for (int index = 0; index < filterList.length; index++) {
-      int itemPrice1 = filterList[index]['item_price1'];
-      int count = int.tryParse(itemControllers[index].text) ?? 0;
-      total += itemPrice1 * count;
+    if(itemControllers.isNotEmpty){
+      for (int index = 0; index < filterList.length; index++) {
+        int itemPrice1 = filterList[index]['item_price1'];
+        int count = int.tryParse(itemControllers[index].text) ?? 0;
+        total += itemPrice1 * count;
+      }
     }
     return total;
   }
@@ -216,7 +218,7 @@ class _ItemsPageState extends State<ItemsPage> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-       dynamic orderno = data;
+        dynamic orderno = data;
         orderData.clear();
         filterList.clear();
         // Handle success
@@ -290,7 +292,6 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
-  int total = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +334,7 @@ class _ItemsPageState extends State<ItemsPage> {
                             children: [
                               Text('Note : Confirmed order cannot be edited !',style: TextStyle(fontSize: 11,overflow: TextOverflow.ellipsis, ),),
                               SizedBox(height: 10,),
-                              Text('Amount  :  ${grandTotal ?? 0}' ),
+                              Text('Amount  :  ${calculateTotal()}' ),
                             ],
                           ),
                         ),
@@ -388,7 +389,7 @@ class _ItemsPageState extends State<ItemsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Place Order : ₹${grandTotal ?? 0} '),
+                    Text('Place Order : ₹${calculateTotal()} '),
                     // Text('${calculateTotal().toStringAsFixed(2)}',style: GoogleFonts.poppins(fontSize: 18),),
                   ],
                 ),
@@ -520,10 +521,13 @@ class _ItemsPageState extends State<ItemsPage> {
                   });
                 },
                 onSubmitted: (value) {
-                  setState(() {});
+                  setState(() {
+                    itemController.clear();
+                  });
                 },
                 onItemSelected: (selectedItem) {
                   // Check if the selected item already exists in filterList
+                  itemControllers.add(TextEditingController(text: '1'));
                   bool itemAlreadyExists = filterList.any((item) {
                     return item['item_name'] == selectedItem['item_name'];
                   });
@@ -546,7 +550,7 @@ class _ItemsPageState extends State<ItemsPage> {
                   child: ListView.builder(
                     itemCount: filterList.length,
                     itemBuilder: (context, index) {
-                      itemControllers.add(TextEditingController(text: '1'));
+                      // itemControllers.add(TextEditingController(text: '1'));
                       return Column(
                         children: [
                           Dismissible(
@@ -555,6 +559,7 @@ class _ItemsPageState extends State<ItemsPage> {
                               setState(() {
                                 filterList.removeAt(index);
                                 itemControllers.removeAt(index);
+                                orderData.remove(index);
                                 grandTotal = calculateTotal();
                               });
                             },
@@ -618,18 +623,17 @@ class _ItemsPageState extends State<ItemsPage> {
                                     children: [
                                       GestureDetector(
                                         child: CircleAvatar(
-                                          backgroundColor: app_color,
+                                          backgroundColor:int.tryParse(itemControllers[index].text)! <= 1 ? Colors.grey : app_color,
                                           child: const Text('-',
                                               style:
                                               TextStyle(color: Colors.white)),
                                         ),
                                         onTap: () {
                                           setState(() {
-                                            if (int.tryParse(itemControllers[index].text)! > 0) {
+                                            if (int.tryParse(itemControllers[index].text)! > 1) {
                                               int count = int.tryParse(itemControllers[index].text) ?? 0;
                                               count--;
                                               itemControllers[index].text = count.toString();
-                                              grandTotal = calculateTotal();
 
                                               // Update your total or other calculations here
                                             }
@@ -698,9 +702,13 @@ class _ItemsPageState extends State<ItemsPage> {
                                             int count = int.tryParse(itemControllers[index].text) ?? 0;
                                             count++;
                                             itemControllers[index].text = count.toString();
-                                            grandTotal = calculateTotal();
+                                            // grandTotal = calculateTotal();
                                             // print(itemControllers[0].text);
                                             // Update your total or other calculations here
+                                            // print("${filterList[index]['item_qty'].runtimeType}");
+                                            if(itemControllers[index].text == filterList[index]['item_qty'].toString()){
+                                              print("call function");
+                                            }
                                           });
                                         },
                                       ),
@@ -834,11 +842,11 @@ class _ItemFilterState extends State<ItemFilter> {
               return suggestionsBox;
             },
             onSuggestionSelected: (suggestion) {
+
               // widget.controller.text = suggestion['item_name'];
               widget.onSubmitted!(suggestion['item_name']);
               // Call the callback to handle the selected item
               widget.onItemSelected(suggestion);
-
             },
           ),
         ),
