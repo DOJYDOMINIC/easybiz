@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:easybiz/view/item_price.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../const.dart';
+import 'item_price.dart';
 import 'itemspage.dart';
 import 'login.dart';
 

@@ -504,13 +504,13 @@ class _ItemsPageState extends State<ItemsPage> {
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width:180,
+                                        width:200,
                                         child: Text(
                                           filterList[index]['item_name'],
                                           style: GoogleFonts.poppins(
