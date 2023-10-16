@@ -79,9 +79,7 @@ class _CompanyDataState extends State<CompanyData> {
 
 
   Future<void> SelectedArea() async {
-    try {
       try{
-        if (mounted) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           custarea = prefs.getString('location');
           usercode = prefs.getString('usercode');
@@ -97,10 +95,7 @@ class _CompanyDataState extends State<CompanyData> {
               locationcontroller;
             });
           }
-        }
-      }catch(e){
-        print('locationcontroller $e');
-      }
+
 
       final uri = Uri.parse('${api}/cust');
 

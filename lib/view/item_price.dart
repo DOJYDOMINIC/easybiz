@@ -27,7 +27,6 @@ class _ItemsPageDataState extends State<ItemsPageData> {
   List itemdatalist = [];
   List filteredItemList = [];
 
-
   Future<void> ItemCall() async {
     try {
       final uri = Uri.parse('$api/items');
@@ -53,6 +52,8 @@ class _ItemsPageDataState extends State<ItemsPageData> {
         setState(() {
           itemdatalist = data['data'];
           filteredItemList = List.from(itemdatalist);
+          calculateGrandTotal();
+
         });
       } else {
         print('Error: ${comp}');
@@ -96,10 +97,11 @@ class _ItemsPageDataState extends State<ItemsPageData> {
                 controller: itemcontroller,
                 onChanged: (pattern) {
                   setState(() {
-                    filteredItemList = itemdatalist.where((item) =>
-                        item['item_name']
+                    filteredItemList = itemdatalist
+                        .where((item) => item['item_name']
                             .toLowerCase()
-                            .contains(pattern.toLowerCase())).toList();
+                            .contains(pattern.toLowerCase()))
+                        .toList();
                   });
                 },
                 decoration: InputDecoration(
@@ -117,8 +119,8 @@ class _ItemsPageDataState extends State<ItemsPageData> {
                     ),
                   ),
                   hintText: 'Item Search',
-                  labelStyle: GoogleFonts.poppins(
-                      color: Colors.black.withOpacity(.8)),
+                  labelStyle:
+                      GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),
                   fillColor: Colors.white,
                   filled: true,
                   focusedBorder: OutlineInputBorder(
@@ -139,62 +141,96 @@ class _ItemsPageDataState extends State<ItemsPageData> {
               child: filteredItemList.isEmpty
                   ? Center(child: CircularProgressIndicator())
                   : ListView.builder(
-                itemCount: filteredItemList.length,
-                itemBuilder: (context, index) {
-                  return Card(
-                    margin:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            filteredItemList[index]['item_name'],
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                      itemCount: filteredItemList.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          margin:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  filteredItemList[index]['item_name'],
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    _buildItemInfo(
+                                        'Qty',
+                                        filteredItemList[index]['item_qty']
+                                            .toString()),
+                                    _buildItemInfo(
+                                        'R',
+                                        filteredItemList[index]['item_price1']
+                                            .toString()),
+                                    _buildItemInfo(
+                                        'W',
+                                        filteredItemList[index]['item_price2']
+                                            .toString()),
+                                    _buildItemInfo(
+                                        'Spl',
+                                        filteredItemList[index]['item_price3']
+                                            .toString()),
+                                    _buildItemInfo(
+                                        'cost',
+                                        filteredItemList[index]['item_cost']
+                                            .toString()),
+                                    _buildItemInfo('value',
+                                        '${filteredItemList[index]['item_cost'] * filteredItemList[index]['item_qty']}'),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceEvenly,
-                            children: [
-                              _buildItemInfo(
-                                  'Qty',
-                                  filteredItemList[index]['item_qty']
-                                      .toString()),
-                              _buildItemInfo(
-                                  'Retail',
-                                  filteredItemList[index]['item_price1']
-                                      .toString()),
-                              _buildItemInfo(
-                                  'Wholesale',
-                                  filteredItemList[index]['item_price2']
-                                      .toString()),
-                              _buildItemInfo(
-                                  'Special',
-                                  filteredItemList[index]['item_price3']
-                                      .toString()),
-                            ],
-                          ),
-                        ],
-                      ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
-          ],
+            GestureDetector(
+              onTap: (){
+                calculateGrandTotal();
+              },
+              child: Container(
+           height: 50,
+                color: app_color,
+                child: Center(
+                  child: Text(
+                    'Grand Total : ${grandTotal.toStringAsFixed(2)}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            )
+        ]
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: sortItemList,
-      //   child: Icon(Icons.sort),
-      // ),
     );
   }
+  num grandTotal = 0;
+
+  void calculateGrandTotal() {
+    if (filteredItemList.isNotEmpty) {
+      for (int index = 0; index < filteredItemList.length; index++) {
+        num itemCost = double.parse(filteredItemList[index]['item_cost'].toString());
+        num itemQty = double.parse(filteredItemList[index]['item_qty'].toString());
+        grandTotal += itemCost * itemQty;
+      }
+      print('Grand Total: $grandTotal');
+    }
+  }
+
 
   Widget _buildItemInfo(String title, String value) {
     return Column(
@@ -207,9 +243,9 @@ class _ItemsPageDataState extends State<ItemsPageData> {
           ),
         ),
         Text(
-          value,
+          double.parse(value).toStringAsFixed(1),
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 14,
             fontWeight: FontWeight.bold,
           ),
         ),

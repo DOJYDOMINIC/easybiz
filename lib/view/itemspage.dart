@@ -333,13 +333,6 @@ class _ItemsPageState extends State<ItemsPage> {
                   ),
                 ),
               ),
-              // ListTile(
-              //   leading: const Icon(Icons.attach_money_outlined),
-              //   title: Text(
-              //     'Price List',
-              //     style: GoogleFonts.poppins(),
-              //   ),
-              // ),
               ListTile(
                 leading: const Icon(Icons.shopping_cart),
                 title: Text(
@@ -517,11 +510,12 @@ class _ItemsPageState extends State<ItemsPage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                        width:200,
+                                        width:180,
                                         child: Text(
                                           filterList[index]['item_name'],
                                           style: GoogleFonts.poppins(
-                                            fontSize: 18,
+                                            fontSize: 17,
+                                            fontWeight: FontWeight.bold
                                           ),
                                         ),
                                       ),
@@ -531,19 +525,39 @@ class _ItemsPageState extends State<ItemsPage> {
                                       Row(
                                         children: [
                                           // Text('${filterList[index]['item_qty'] - itemController}', style: GoogleFonts.poppins()),
-                                          Text('${filterList[index]['item_qty']}',
-                                              style: GoogleFonts.poppins()),
+                                          Column(
+                                            children: [
+                                              Text('Qty',
+                                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                                              Text('${filterList[index]['item_qty']}',
+                                                  style: GoogleFonts.poppins()),
+                                            ],
+                                          ),
                                           Padding(
                                             padding: const EdgeInsets.only(
                                                 left: 20, right: 20),
-                                            child: Text(
-                                                '${pricelist(widget.item['cust_type'].toString(),index)}',
-                                                style: GoogleFonts.poppins()),
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                    'price',
+                                                    style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                                                Text(
+                                                    '${pricelist(widget.item['cust_type'].toString(),index)}',
+                                                    style: GoogleFonts.poppins()),
+                                              ],
+                                            ),
                                           ),
 
-                                          Text(
-                                              '${num.parse(pricelist(widget.item['cust_type'],index)) * (num.tryParse(itemControllers[index].text) ?? 0)}',
-                                              style: GoogleFonts.poppins()),
+                                          Column(
+                                            children: [
+                                              Text(
+                                                  'Total',
+                                                  style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+                                              Text(
+                                                  '${num.parse(pricelist(widget.item['cust_type'],index)) * (num.tryParse(itemControllers[index].text) ?? 0)}',
+                                                  style: GoogleFonts.poppins()),
+                                            ],
+                                          ),
                                         ],
                                       ),
                                     ],
