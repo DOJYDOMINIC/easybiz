@@ -31,6 +31,7 @@ class _CompanyDataState extends State<CompanyData> {
     super.initState();
     SelectedArea();
     custarea;
+    ItemCall();
   }
 
 
@@ -38,6 +39,43 @@ class _CompanyDataState extends State<CompanyData> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('location', locationcontroller.text);
   }
+
+  Future<void> ItemCall() async {
+    try {
+      final uri = Uri.parse('${api}/items');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      location = prefs.getString('location');
+      // comp = prefs.getString('comp');
+      final requestBody = {
+        'compcode': comp,
+        // 'custcode': widget.item['cust_code'],
+      };
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        // if (data['data'] != []) {
+        itemdata = data['data'];
+        // }
+
+        print(itemdata.toString());
+      } else {
+        print('Error: ${comp}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+
 
   Future<void> SelectedArea() async {
     try {
@@ -91,7 +129,7 @@ class _CompanyDataState extends State<CompanyData> {
   }
 
   String getTypeDescription(String custType) {
-    if (custType == '1') {
+    if (custType == 'R') {
       return 'retail';
     } else {
       return 'wholesale';
@@ -129,7 +167,20 @@ class _CompanyDataState extends State<CompanyData> {
             ),
             GestureDetector(
               onTap: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => ItemPriceData(data:SelectedData ),));
+                SelectedArea();
+                Navigator.pop(context);
+              },
+              child: ListTile(
+                leading: const Icon(Icons.home),
+                title: Text(
+                  'Home',
+                  style: GoogleFonts.poppins(),
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ItemsPageData(data:SelectedData)));
               },
               child: ListTile(
                 leading: const Icon(Icons.attach_money_outlined),
@@ -291,69 +342,73 @@ class _CompanyDataState extends State<CompanyData> {
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        SelectedData[index]['cust_name'],
-                                        style: GoogleFonts.poppins(
+                                      Container(
+                                        width:200,
+                                        child: Text(
+                                          SelectedData[index]['cust_name'],
+                                          overflow: TextOverflow.ellipsis,
+                                          style: GoogleFonts.poppins(
                                             fontWeight: FontWeight.w500,
-                                            fontSize: 20),
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                                SelectedData[index]
-                                                    ['cust_area'],
-                                                style: GoogleFonts.poppins(
-                                                    color:
-                                                        Colors.grey.shade600)),
-                                            Text(
-                                                SelectedData[index]
-                                                    ['cust_address'],
-                                                style: GoogleFonts.poppins(
-                                                    color:
-                                                        Colors.grey.shade600)),
-                                            Text(
-                                                'Ph : ${SelectedData[index]['cust_phone']}',
-                                                style: GoogleFonts.poppins(
-                                                    color:
-                                                        Colors.grey.shade600)),
-                                          ],
+                                            fontSize: 20,
+                                          ),
                                         ),
+                                      ),
+                                      Container(
+                                        height: 25,
+                                        decoration: BoxDecoration(
+                                            color: app_color,
+                                            borderRadius: BorderRadius.circular(8)),
+                                        child: Center(
+                                            child: Padding(
+                                              padding: const EdgeInsets.fromLTRB(
+                                                  10, 0, 10, 0),
+                                              child: Text(
+                                                '${getTypeDescription(SelectedData[index]['cust_type'],
+                                                )}',
+
+                                                style: GoogleFonts.poppins(
+                                                    color: Colors.white),
+                                              ),
+                                            )),
                                       ),
                                     ],
                                   ),
-                                  Container(
-                                    height: 25,
-                                    decoration: BoxDecoration(
-                                        color: app_color,
-                                        borderRadius: BorderRadius.circular(8)),
-                                    child: Center(
-                                        child: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10, 0, 10, 0),
-                                      child: Text(
-                                        '${getTypeDescription(
-                                          SelectedData[index]['cust_type'],
-                                        )}',
-                                        style: GoogleFonts.poppins(
-                                            color: Colors.white),
-                                      ),
-                                    )),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                            SelectedData[index]
+                                                ['cust_area'],
+                                            style: GoogleFonts.poppins(
+                                                color:
+                                                    Colors.grey.shade600)),
+                                        Text(
+                                            SelectedData[index]
+                                                ['cust_address'],
+                                            overflow:TextOverflow.ellipsis,
+                                            style: GoogleFonts.poppins(
+                                                color:
+                                                    Colors.grey.shade600)),
+                                        Text(
+                                            'Ph : ${SelectedData[index]['cust_phone']}',
+                                            style: GoogleFonts.poppins(
+                                                color:
+                                                    Colors.grey.shade600)),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               )

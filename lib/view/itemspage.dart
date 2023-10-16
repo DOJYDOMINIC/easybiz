@@ -8,14 +8,18 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../const.dart';
 import 'dart:io';
-
 import 'company_data.dart';
 import 'login.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:share/share.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 String itemname = '';
-int? grandTotal;
+num? grandTotal;
 String? location;
 num? count = 1;
+List itemdata = [];
 
 class ItemsPage extends StatefulWidget {
   const ItemsPage({super.key, this.item});
@@ -30,9 +34,8 @@ class _ItemsPageState extends State<ItemsPage> {
   @override
   void initState() {
     super.initState();
-    ItemCall();
+    // ItemCall();
     _getCurrentLocation();
-    // print(widget.item.toString());
     count = 1;
   }
 
@@ -76,18 +79,18 @@ class _ItemsPageState extends State<ItemsPage> {
       return;
     }
 
+
     Position position = await Geolocator.getCurrentPosition();
 
-    setState(() {
+    // setState(() {
       latitude = position.latitude;
       longitude = position.longitude;
       // print('${latitude}');
       // print('${longitude}');
-    });
+    // });
   }
 
   // var count;
-  List itemdata = [];
   List filterList = [];
   List Grandtotal = [];
   List<TextEditingController> itemControllers = [];
@@ -97,12 +100,12 @@ class _ItemsPageState extends State<ItemsPage> {
   // TextEditingController itemControllers = TextEditingController();
   // int total = calculateTotal();
 
-int calculateTotal() {
-    int total = 0;
+  num calculateTotal() {
+    num total = 0;
     if(itemControllers.isNotEmpty){
       for (int index = 0; index < filterList.length; index++) {
-        int itemPrice1 = filterList[index]['item_price1'];
-        int count = int.tryParse(itemControllers[index].text) ?? 0;
+        num itemPrice1 = int.parse(pricelist(widget.item['cust_type'].toString(),index));
+        num count = int.tryParse(itemControllers[index].text) ?? 0;
         total += itemPrice1 * count;
       }
     }
@@ -110,47 +113,14 @@ int calculateTotal() {
   }
 
   String getTypeDescription(String custType) {
-    if (custType == '1') {
+    if (custType == 'R') {
       return 'retail';
     } else {
       return 'wholesale';
     }
   }
 
-  Future<void> ItemCall() async {
-    try {
-      final uri = Uri.parse('${api}/items');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      location = prefs.getString('location');
-      // comp = prefs.getString('comp');
-      final requestBody = {
-        'compcode': comp,
-        // 'custcode': widget.item['cust_code'],
-      };
-
-      final response = await http.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(requestBody),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-        if (data['data'] != []) {
-          itemdata = data['data'];
-        }
-
-        print(itemdata.toString());
-      } else {
-        print('Error: ${comp}');
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
 
   String? formattedDate;
   String? formattedTime;
@@ -169,7 +139,7 @@ int calculateTotal() {
       itemnames = filterList[i]['item_name'];
       controller = itemControllers[i].text.toString();
       itemprice   =  filterList[i]['item_price1'].toString();
-      int value =  filterList[i]['item_price1'] * int.tryParse(controller.toString());
+      num value =  filterList[i]['item_price1'] * num.tryParse(controller.toString());
       itemqty = value.toString();
       // Do something with itemCode
       orderData.add({
@@ -189,7 +159,7 @@ int calculateTotal() {
         'act_name':'${widget.item['cust_name']}',
         'act_address': "${widget.item['cust_address']}",
         'act_phone': "${widget.item['cust_phone']}",
-        'act_area': location,
+        'act_area': "${widget.item['cust_area']}",
         'act_type': "${widget.item['cust_type']}",
         'trx_disc': 0.0,
         'trx_netamount': 0.0,
@@ -200,10 +170,58 @@ int calculateTotal() {
         'grand_total': "${calculateTotal()}"
       });
     }
-
   }
 
 
+  String createOrderText(Map<String, dynamic> data) {
+    String orderText = '';
+    orderText += 'Company Code: ${data['comp_code']}\n';
+    orderText += 'Order Date: ${data['ord_date']}\n';
+    orderText += 'Order Time: ${data['ord_time']}\n';
+    orderText += 'Item Code: ${data['item_code']}\n';
+    orderText += 'Item Name: ${data['item_name']}\n';
+    orderText += 'Item Quantity: ${data['item_qty']}\n';
+    orderText += 'Item Price: ${data['item_price']}\n';
+    orderText += 'Item Tax: ${data['item_tax']}\n';
+    orderText += 'Item Discount: ${data['item_disc']}\n';
+    orderText += 'Item Cess: ${data['item_cess']}\n';
+    orderText += 'Transaction Total: ${data['trx_total']}\n';
+    orderText += 'Status Flag: ${data['status_flag']}\n';
+    orderText += 'Customer Code: ${data['act_code']}\n';
+    orderText += 'Customer Name: ${data['act_name']}\n';
+    orderText += 'Customer Address: ${data['act_address']}\n';
+    orderText += 'Customer Phone: ${data['act_phone']}\n';
+    orderText += 'Customer Area: ${data['act_area']}\n';
+    orderText += 'Customer Type: ${data['act_type']}\n';
+    orderText += 'Transaction Discount: ${data['trx_disc']}\n';
+    orderText += 'Transaction Net Amount: ${data['trx_netamount']}\n';
+    orderText += 'User Code: ${data['user_code']}\n';
+    orderText += 'User Name: ${data['user_name']}\n';
+    orderText += 'Latitude and Longitude: ${data['lat_long']}\n';
+    orderText += 'System Name: ${data['system_name']}\n';
+    orderText += 'Grand Total: ${data['grand_total']}\n';
+
+    return orderText;
+  }
+
+
+  Future<void> _generateAndSharePDF() async {
+    final pdf = pw.Document();
+    pdf.addPage(pw.Page(build: (pw.Context context) {
+      return pw.Center(
+        child: pw.Text('dataToShare'),
+      );
+    }));
+
+    // Save the PDF
+    final output = await getTemporaryDirectory();
+    final file = File("${output.path}/example.pdf");
+    await file.writeAsBytes(await pdf.save());
+
+    // Share the PDF
+    Share.shareFiles(['${output.path}/example.pdf'],
+        text: 'Sharing PDF from Flutter');
+  }
 
   Future<void> createOrderAPI(List<Map<String, dynamic>> value) async {
     try {
@@ -217,37 +235,24 @@ int calculateTotal() {
       );
 
       if (response.statusCode == 200) {
+
         final Map<String, dynamic> data = json.decode(response.body);
-        dynamic orderno = data;
+        print(data.toString());
         orderData.clear();
         filterList.clear();
-        // Handle success
-        // print('Order placed successfully');
+
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            // int total = 0;
             return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              title: Center(child: Text('order placed successfully',overflow: TextOverflow.ellipsis,style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
-              content: Text('Order No  :  $orderno' ),
+              title: Text('Order Conformed'),
+              content: Text('Order NO : 12345'),
               actions: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
-                  child: SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white, backgroundColor: app_color, // text color
-                      ),
-                      child: Text('ok'),
-                      onPressed: () {
-                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompanyData(),));
-                      },
-                    ),
-                  ),
+                TextButton(
+                  child: Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             );
@@ -259,28 +264,16 @@ int calculateTotal() {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            // int total = 0;
             return AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              title: Center(child: Text('Something Went Wrong !',overflow: TextOverflow.ellipsis,style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
-              // content: Text('' ),
+              title: Text('Order Failed'),
+              content: Text(
+                  'API call failed with status: ${response.statusCode}'),
               actions: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
-                  child: SizedBox(
-                    height: 30,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: Colors.white, backgroundColor: Colors.black, // text color
-                      ),
-                      child: Text('ok'),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
+                TextButton(
+                  child: Text('Close'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             );
@@ -292,6 +285,15 @@ int calculateTotal() {
     }
   }
 
+  String pricelist(String custType, int index) {
+    if (custType == 'R') {
+      return filterList[index]['item_price1'].toString();
+    } else if (custType == 'W') {
+      return filterList[index]['item_price2'].toString();
+    }
+    // Handle other cases or return a default value if necessary
+    return filterList[index]['item_price2']; // Change this to your appropriate default value
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -303,100 +305,16 @@ int calculateTotal() {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-          child: BottomAppBar(
-            elevation: 0,
-            child: SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: app_color,
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                    BorderRadius.circular(15), // Set the border radius here
-                  ), // Set the background color of the button
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      // int total = 0;
-                      return AlertDialog(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        title: Center(child: Text('Do you want to confirm ?',overflow: TextOverflow.ellipsis,style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
-                        content: Container(
-                          height: 50,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('Note : Confirmed order cannot be edited !',style: TextStyle(fontSize: 11,overflow: TextOverflow.ellipsis, ),),
-                              SizedBox(height: 10,),
-                              Text('Amount  :  ${calculateTotal()}' ),
-                            ],
-                          ),
-                        ),
-                        actions: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                SizedBox(
-                                  height: 30,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      foregroundColor: Colors.white, backgroundColor: Colors.black, // text color
-                                    ),
-                                    child: Text('Cancel'),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 30,
-                                  child: ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: app_color, // background color
-                                      onPrimary: Colors.white, // text color
-                                    ),
-                                    child: Text('Confirm'),
-                                    onPressed: () {
-                                      // Add your logic if the user confirms
-                                      setState(() {
-                                        Purchase_data();
-                                        createOrderAPI(orderData);
-                                        getDeviceName();
-                                      });
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ),
-
-                              ],
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-
-                  // print(filterList.toString());
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Place Order : ₹${calculateTotal()} '),
-                    // Text('${calculateTotal().toStringAsFixed(2)}',style: GoogleFonts.poppins(fontSize: 18),),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
+        // bottomNavigationBar: Padding(
+        //   padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+        //   child: BottomAppBar(
+        //     elevation: 0,
+        //     child: SizedBox(
+        //       height: 50,
+        //       child:
+        //     ),
+        //   ),
+        // ),
         resizeToAvoidBottomInset: true,
         drawer: Drawer(
           child: ListView(
@@ -418,13 +336,13 @@ int calculateTotal() {
                   ),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.attach_money_outlined),
-                title: Text(
-                  'Price List',
-                  style: GoogleFonts.poppins(),
-                ),
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.attach_money_outlined),
+              //   title: Text(
+              //     'Price List',
+              //     style: GoogleFonts.poppins(),
+              //   ),
+              // ),
               ListTile(
                 leading: const Icon(Icons.shopping_cart),
                 title: Text(
@@ -477,21 +395,25 @@ int calculateTotal() {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Container(
-                        height: 25,
-                        decoration: BoxDecoration(
-                            color: app_color,
-                            borderRadius: BorderRadius.circular(8)),
-                        child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                              child: Text(
-                                '${getTypeDescription(
-                                  widget.item['cust_type'],
-                                )}',
-                                style: GoogleFonts.poppins(color: Colors.white),
-                              ),
-                            )),
+                      GestureDetector(
+                        onTap: (){
+                          print(itemdata.toString());
+                        },
+                        child: Container(
+                          height: 25,
+                          decoration: BoxDecoration(
+                              color: app_color,
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                child: Text(
+                                  '${getTypeDescription(widget.item['cust_type'],
+                                  )}',
+                                  style: GoogleFonts.poppins(color: Colors.white),
+                                ),
+                              )),
+                        ),
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -554,7 +476,7 @@ int calculateTotal() {
                 },
               ),
               Expanded(
-                  child: ListView.builder(
+                  child:itemdata == null ? Center(child: CircularProgressIndicator()) : ListView.builder(
                     itemCount: filterList.length,
                     itemBuilder: (context, index) {
                       // itemControllers.add(TextEditingController(text: '1'));
@@ -597,10 +519,13 @@ int calculateTotal() {
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        filterList[index]['item_name'],
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 18,
+                                      Container(
+                                        width:200,
+                                        child: Text(
+                                          filterList[index]['item_name'],
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 18,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(
@@ -615,12 +540,12 @@ int calculateTotal() {
                                             padding: const EdgeInsets.only(
                                                 left: 20, right: 20),
                                             child: Text(
-                                                '${filterList[index]['item_price1']}',
+                                                '${pricelist(widget.item['cust_type'].toString(),index)}',
                                                 style: GoogleFonts.poppins()),
                                           ),
 
                                           Text(
-                                              '${filterList[index]['item_price1'] * (int.tryParse(itemControllers[index].text) ?? 0)}',
+                                              '${num.parse(pricelist(widget.item['cust_type'],index)) * (num.tryParse(itemControllers[index].text) ?? 0)}',
                                               style: GoogleFonts.poppins()),
                                         ],
                                       ),
@@ -630,15 +555,15 @@ int calculateTotal() {
                                     children: [
                                       GestureDetector(
                                         child: CircleAvatar(
-                                          backgroundColor:int.tryParse(itemControllers[index].text)! <= 1 ? Colors.grey : app_color,
+                                          backgroundColor:num.tryParse(itemControllers[index].text)! <= 1 ? Colors.grey : app_color,
                                           child: const Text('-',
                                               style:
                                               TextStyle(color: Colors.white)),
                                         ),
                                         onTap: () {
                                           setState(() {
-                                            if (int.tryParse(itemControllers[index].text)! > 1) {
-                                              int count = int.tryParse(itemControllers[index].text) ?? 0;
+                                            if (num.tryParse(itemControllers[index].text)! > 1) {
+                                              num count = num.tryParse(itemControllers[index].text) ?? 0;
                                               count--;
                                               itemControllers[index].text = count.toString();
 
@@ -653,7 +578,7 @@ int calculateTotal() {
                                           controller: itemControllers[index],
                                           onChanged: (value) {
                                             setState(() {
-                                              var newValue = int.tryParse(value);
+                                              var newValue = num.tryParse(value);
                                               if (newValue != null) {
                                                 if (newValue > 0) {
                                                   count = newValue;
@@ -706,7 +631,7 @@ int calculateTotal() {
                                         ),
                                         onTap: () {
                                           setState(() {
-                                            int count = int.tryParse(itemControllers[index].text) ?? 0;
+                                            num count = num.tryParse(itemControllers[index].text) ?? 0;
                                             count++;
                                             itemControllers[index].text = count.toString();
                                             // grandTotal = calculateTotal();
@@ -714,7 +639,7 @@ int calculateTotal() {
                                             // Update your total or other calculations here
                                             // print("${filterList[index]['item_qty'].runtimeType}");
                                             if(itemControllers[index].text == filterList[index]['item_qty'].toString()){
-                                              print("call function");
+                                              // print("call function");
                                             }
                                           });
                                         },
@@ -738,6 +663,94 @@ int calculateTotal() {
               //       Purchase_data();
               //     },
               //     child: Text('Add'))
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SizedBox(
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: app_color,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.circular(15), // Set the border radius here
+                      ), // Set the background color of the button
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          // int total = 0;
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                            title: Center(child: Text('Do you want to confirm ?',overflow: TextOverflow.ellipsis,style: GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 16),)),
+                            content: Container(
+                              height: 50,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('Note : Confirmed order cannot be edited !',style: TextStyle(fontSize: 11,overflow: TextOverflow.ellipsis, ),),
+                                  SizedBox(height: 10,),
+                                  Text('Amount  :  ${calculateTotal().toString()}' ),
+                                ],
+                              ),
+                            ),
+                            actions: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20,right: 20,bottom: 20),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    SizedBox(
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          foregroundColor: Colors.white, backgroundColor: Colors.black, // text color
+                                        ),
+                                        child: Text('Cancel'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 30,
+                                      child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          foregroundColor: Colors.white, backgroundColor: app_color, // text color
+                                        ),
+                                        child: Text('Confirm'),
+                                        onPressed: () {
+                                          // Add your logic if the user confirms
+                                          setState(() {
+                                              Purchase_data();
+                                              createOrderAPI(orderData);
+                                              getDeviceName();
+                                          });
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                      // print(filterList.toString());
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Place Order : ₹${calculateTotal()} '),
+                        // Text('${calculateTotal().toStringAsFixed(2)}',style: GoogleFonts.poppins(fontSize: 18),),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -745,6 +758,7 @@ int calculateTotal() {
     );
   }
 }
+
 
 class ItemFilter extends StatefulWidget {
   const ItemFilter({
