@@ -56,6 +56,7 @@ class _CompanyDataState extends State<CompanyData> {
         uri,
         headers: {
           'Content-Type': 'application/json',
+
         },
         body: json.encode(requestBody),
       );

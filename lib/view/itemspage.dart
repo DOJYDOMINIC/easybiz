@@ -53,7 +53,6 @@ class _ItemsPageState extends State<ItemsPage> {
     if (Platform.isAndroid) {
       AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
       deviceModel = androidInfo.model;
-      // print(deviceModel);
     } else if (Platform.isIOS) {
       IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
       deviceModel = iosInfo.name;
@@ -64,6 +63,7 @@ class _ItemsPageState extends State<ItemsPage> {
     }
   }
 
+
   void _getCurrentLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -73,7 +73,6 @@ class _ItemsPageState extends State<ItemsPage> {
         return;
       }
     }
-
     if (permission == LocationPermission.deniedForever) {
       // Handle the scenario when the location permission is permanently denied by the user
       return;
@@ -82,12 +81,10 @@ class _ItemsPageState extends State<ItemsPage> {
 
     Position position = await Geolocator.getCurrentPosition();
 
-    // setState(() {
+    setState(() {
       latitude = position.latitude;
       longitude = position.longitude;
-      // print('${latitude}');
-      // print('${longitude}');
-    // });
+    });
   }
 
   // var count;
@@ -246,12 +243,15 @@ class _ItemsPageState extends State<ItemsPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Order Conformed'),
-              content: Text('Order NO : 12345'),
+              content: Text('Order NO : '),
               actions: <Widget>[
+                IconButton(onPressed: () {
+                  Navigator.pop(context);
+                }, icon: Icon(Icons.share)),
                 TextButton(
-                  child: Text('Close'),
+                  child: Text('Ok'),
                   onPressed: () {
-                    Navigator.of(context).pop();
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => CompanyData(),));
                   },
                 ),
               ],
@@ -260,17 +260,14 @@ class _ItemsPageState extends State<ItemsPage> {
         );
       } else {
         // Handle failure
-        print('Failed to place order. Status code: ${response.statusCode}');
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text('Order Failed'),
-              content: Text(
-                  'API call failed with status: ${response.statusCode}'),
               actions: <Widget>[
                 TextButton(
-                  child: Text('Close'),
+                  child: Text('Ok'),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -863,7 +860,6 @@ class _ItemFilterState extends State<ItemFilter> {
               return suggestionsBox;
             },
             onSuggestionSelected: (suggestion) {
-
               // widget.controller.text = suggestion['item_name'];
               widget.onSubmitted!(suggestion['item_name']);
               // Call the callback to handle the selected item

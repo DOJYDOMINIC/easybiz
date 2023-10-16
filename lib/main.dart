@@ -25,6 +25,6 @@ class _MyAppState extends State<MyApp> {
     // print(comp);
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: user !=null && comp != null || user != '' && comp != '' ? CompanyData() : Login());
+        home: comp.isNotEmpty  ? CompanyData() : Login());
   }
 }
