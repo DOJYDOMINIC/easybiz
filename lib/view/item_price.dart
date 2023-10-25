@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../const.dart';
 import 'company_data.dart';
+import 'itemspage.dart';
 
 class ItemsPageData extends StatefulWidget {
   const ItemsPageData({Key? key, this.data});
@@ -20,54 +21,55 @@ class _ItemsPageDataState extends State<ItemsPageData> {
   @override
   void initState() {
     super.initState();
-    ItemCall();
+    // ItemCall();
+    filteredItemList = List.from(itemdata);
+            calculateGrandTotal();
+
   }
 
   TextEditingController itemcontroller = TextEditingController();
-  List itemdatalist = [];
+  // List itemdata = [];
   List filteredItemList = [];
 
-  Future<void> ItemCall() async {
-    try {
-      final uri = Uri.parse('$api/items');
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      comp = prefs.getString('comp')!;
-
-      final requestBody = {
-        'compcode': comp,
-      };
-
-      final response = await http.post(
-        uri,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode(requestBody),
-      );
-
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
-
-        setState(() {
-          itemdatalist = data['data'];
-          filteredItemList = List.from(itemdatalist);
-          calculateGrandTotal();
-
-        });
-      } else {
-        print('Error: ${comp}');
-      }
-    } catch (e) {
-      print('Error: $e');
-    }
-  }
+  // Future<void> ItemCall() async {
+  //   try {
+  //     final uri = Uri.parse('$api/items');
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //
+  //     comp = prefs.getString('comp')!;
+  //
+  //     final requestBody = {
+  //       'compcode': comp,
+  //     };
+  //
+  //     final response = await http.post(
+  //       uri,
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: json.encode(requestBody),
+  //     );
+  //
+  //     if (response.statusCode == 200) {
+  //       final Map<String, dynamic> data = json.decode(response.body);
+  //
+  //       setState(() {
+  //         itemdatalist = data['data'];
+  //
+  //       });
+  //     } else {
+  //       print('Error: ${comp}');
+  //     }
+  //   } catch (e) {
+  //     print('Error: $e');
+  //   }
+  // }
 
   void sortItemList() {
     setState(() {
-      itemdatalist.sort((a, b) =>
+      itemdata.sort((a, b) =>
           a['item_name'].toLowerCase().compareTo(b['item_name'].toLowerCase()));
-      filteredItemList = List.from(itemdatalist);
+      filteredItemList = List.from(itemdata);
     });
   }
 
@@ -91,20 +93,18 @@ class _ItemsPageDataState extends State<ItemsPageData> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextField(
-                controller: itemcontroller,
-                onChanged: (pattern) {
-                  setState(() {
-                    filteredItemList = itemdatalist
-                        .where((item) => item['item_name']
-                            .toLowerCase()
-                            .contains(pattern.toLowerCase()))
-                        .toList();
-                  });
-                },
-                decoration: InputDecoration(
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: itemcontroller,
+            onChanged: (pattern) {
+              setState(() {
+                filteredItemList = itemdata.where((item) => item['item_name'].toLowerCase().startsWith(pattern.toLowerCase())).toList();
+                filteredItemList.sort((a, b) => a['item_name'].toLowerCase().compareTo(b['item_name'].toLowerCase()));
+              });
+            },
+
+        decoration: InputDecoration(
                   suffixIcon: Padding(
                     padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
                   ),

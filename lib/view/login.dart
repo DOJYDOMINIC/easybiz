@@ -7,9 +7,7 @@ import '../const.dart';
 import '../widget/main_fields.dart';
 import 'company_data.dart';
 
-
 String? user;
-
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -19,20 +17,16 @@ class Login extends StatefulWidget {
 }
 
 bool isPressed = false;
-String username ='';
-String password= '';
-String compcode ='';
-
-
-
+String username = '';
+String password = '';
+String compcode = '';
 
 class _LoginState extends State<Login> {
-
-
-
-  Future<void> loginApi(String username, String password,) async {
+  Future<void> loginApi(
+    String username,
+    String password,
+  ) async {
     var usercodeset;
-
 
     try {
       final uri = Uri.parse('${api}/login');
@@ -43,7 +37,6 @@ class _LoginState extends State<Login> {
       };
 
       final response = await http.post(
-
         uri,
         headers: {
           'Content-Type': 'application/json',
@@ -59,60 +52,68 @@ class _LoginState extends State<Login> {
         final Map<String, dynamic> data = json.decode(response.body);
         usercodeset = data['result'][0]['user_id'];
         compcode = data['result'][0]['comp_code'];
-        prefs.setString('usercode',usercodeset);
+        prefs.setString('usercode', usercodeset);
         prefs.setString('comp', compcode);
-
 
         print(data.toString());
         // Now, you can navigate to the CompanyData page
 
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => CompanyData()),
         );
         // print(usercodeset.runtimeType.toString());
-
       } else {
-        Center(
-          child: AlertDialog(
-            title: Text('Alert'),
-            content: Text('Somthing Went Wrong'),
-            actions: [
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              title: Text('login Failed'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Ok'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          },
+        );
+        // print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Text('Something went Wrong'),
+            actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: Text('Ok'),
                 onPressed: () {
-                  Navigator.pop(context); // You might want to handle the exit more gracefully in a production app
+                  Navigator.of(context).pop();
                 },
               ),
             ],
-          ),
-        );
-        print('Error: ${response.statusCode}');
-      }
-    } catch (e) {
-      Center(
-        child: AlertDialog(
-          title: Text('Error'),
-          content: Text('Somthing Went Wrong'),
-          actions: [
-            TextButton(
-              child: Text('OK'),
-              onPressed: () {
-                Navigator.pop(context); // You might want to handle the exit more gracefully in a production app
-              },
-            ),
-          ],
-        ),
+          );
+        },
       );
-      print('Error: $e');
+      // print('Error: $e');
     }
   }
-
 
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController _username = TextEditingController();
   TextEditingController _password = TextEditingController();
+
   // TextEditingController _compcode = TextEditingController();
 
   @override
@@ -123,7 +124,6 @@ class _LoginState extends State<Login> {
           FocusScope.of(context).unfocus();
         }
       },
-
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         body: Form(
@@ -168,26 +168,33 @@ class _LoginState extends State<Login> {
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'z',
-                                        style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 40,
-                                          color: app_color,
-                                        ),
-                                      ),
-                                      Text(
-                                        'Biz',
-                                        style: GoogleFonts.poppins(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 40,
-                                          color: orng,
-                                        ),
-                                      ),
-                                    ],
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Text(
+                                    'z',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 40,
+                                      color: app_color,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  'B',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 60,
+                                    color: orng,
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: Text(
+                                    'iz',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 40,
+                                      color: orng,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -199,20 +206,16 @@ class _LoginState extends State<Login> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text(
-                            'Welcome back you’ve ',
-                            style: GoogleFonts.poppins(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 20,
-                            ),
-                          ),
-                          Text(
-                            'been missed! ',
+                            'Makes Your Trade Easy',
                             style: GoogleFonts.poppins(
                               fontWeight: FontWeight.w700,
                               fontSize: 20,
                             ),
                           ),
                         ],
+                      ),
+                      SizedBox(
+                        height: 20,
                       ),
                       Column(
                         children: [
@@ -240,8 +243,8 @@ class _LoginState extends State<Login> {
                           onTap: () {
                             setState(() {
                               if (_formKey.currentState!.validate()) {
-                              isPressed = !isPressed;
-                              loginApi(username,password);
+                                isPressed = !isPressed;
+                                loginApi(username, password);
                               }
                             });
                           },
@@ -252,29 +255,29 @@ class _LoginState extends State<Login> {
                               borderRadius: BorderRadius.circular(10),
                               gradient: isPressed
                                   ? LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [app_color, app_color],
-                              )
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [app_color, app_color],
+                                    )
                                   : LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [orng, orng],
-                              ),
+                                      begin: Alignment.centerLeft,
+                                      end: Alignment.centerRight,
+                                      colors: [orng, orng],
+                                    ),
                               boxShadow: isPressed
                                   ? [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  spreadRadius: 1,
-                                  blurRadius: 5,
-                                  offset: Offset(2, 2),
-                                ),
-                              ]
+                                      BoxShadow(
+                                        color: Colors.black26,
+                                        spreadRadius: 1,
+                                        blurRadius: 5,
+                                        offset: Offset(2, 2),
+                                      ),
+                                    ]
                                   : [
-                                BoxShadow(
-                                  color: Colors.transparent,
-                                ),
-                              ],
+                                      BoxShadow(
+                                        color: Colors.transparent,
+                                      ),
+                                    ],
                             ),
                             child: Center(
                               child: Text(

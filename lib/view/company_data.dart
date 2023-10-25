@@ -13,8 +13,7 @@ String? selectedName;
 String? username;
 String? custarea;
 String? usercode;
-String comp ='';
-
+String comp = '';
 
 class CompanyData extends StatefulWidget {
   const CompanyData({super.key});
@@ -34,8 +33,13 @@ class _CompanyDataState extends State<CompanyData> {
     ItemCall();
   }
 
+  void Instart() {
+    SelectedArea();
+    custarea;
+    ItemCall();
+  }
 
-  void Area()async{
+  void Area() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('location', locationcontroller.text);
   }
@@ -56,7 +60,6 @@ class _CompanyDataState extends State<CompanyData> {
         uri,
         headers: {
           'Content-Type': 'application/json',
-
         },
         body: json.encode(requestBody),
       );
@@ -76,26 +79,23 @@ class _CompanyDataState extends State<CompanyData> {
     }
   }
 
-
-
   Future<void> SelectedArea() async {
-      try{
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          custarea = prefs.getString('location');
-          usercode = prefs.getString('usercode');
-          comp = prefs.getString('comp')!;
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      custarea = prefs.getString('location');
+      usercode = prefs.getString('usercode');
+      comp = prefs.getString('comp')!;
 
-          comp = prefs.getString('comp')??'';
-          if (custarea != null) {
-            setState(() {
-              locationcontroller.text = custarea!;
-            });
-          } else {
-            setState(() {
-              locationcontroller;
-            });
-          }
-
+      comp = prefs.getString('comp') ?? '';
+      if (custarea != null) {
+        setState(() {
+          locationcontroller.text = custarea!;
+        });
+      } else {
+        setState(() {
+          locationcontroller;
+        });
+      }
 
       final uri = Uri.parse('${api}/cust');
 
@@ -162,7 +162,7 @@ class _CompanyDataState extends State<CompanyData> {
               ),
             ),
             GestureDetector(
-              onTap: (){
+              onTap: () {
                 SelectedArea();
                 Navigator.pop(context);
               },
@@ -175,11 +175,15 @@ class _CompanyDataState extends State<CompanyData> {
               ),
             ),
             GestureDetector(
-              onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ItemsPageData(data:SelectedData)));
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            ItemsPageData(data: SelectedData)));
               },
               child: ListTile(
-                leading: const Icon(Icons.attach_money_outlined),
+                leading: const Icon(Icons.currency_rupee),
                 title: Text(
                   'Price List',
                   style: GoogleFonts.poppins(),
@@ -193,7 +197,19 @@ class _CompanyDataState extends State<CompanyData> {
                 style: GoogleFonts.poppins(),
               ),
             ),
-
+            GestureDetector(
+              onTap: () {
+                Instart();
+                Navigator.pop(context);
+              },
+              child: ListTile(
+                leading: const Icon(Icons.refresh),
+                title: Text(
+                  'Refrsh data',
+                  style: GoogleFonts.poppins(),
+                ),
+              ),
+            ),
             GestureDetector(
               onTap: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -256,9 +272,10 @@ class _CompanyDataState extends State<CompanyData> {
                 controller: selectedController,
                 onChanged: (pattern) {
                   setState(() {
+                    setState(() {});
                     SelectedData.where((item) => item['cust_area']
                         .toLowerCase()
-                        .contains(pattern.toLowerCase()));
+                        .startsWith(pattern.toLowerCase()));
                   });
                 },
                 decoration: InputDecoration(
@@ -304,118 +321,130 @@ class _CompanyDataState extends State<CompanyData> {
               // ),
               SizedBox(height: 15),
               Expanded(
-                  child:SelectedData.isEmpty ? Center(child: CircularProgressIndicator()) : ListView.builder(
-                itemCount: SelectedData.length,
-                itemBuilder: (context, index) {
-                  // Check if selectedName is not null and filter by cust_name
-                  if (selectedController.text.isNotEmpty &&
-                      !SelectedData[index]['cust_name']
-                          .toLowerCase()
-                          .contains(selectedController.text.toLowerCase())  || locationcontroller.text.isNotEmpty &&
-                      !SelectedData[index]['cust_area']
-                          .toLowerCase()
-                          .contains(locationcontroller.text.toLowerCase())) {
-                    return SizedBox.shrink();
-                  }
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                ItemsPage(item: SelectedData[index]),
-                          ));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                      child: Container(
-                        // height: MediaQuery.of(context).size.height/5,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: app_color),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        width:200,
-                                        child: Text(
-                                          SelectedData[index]['cust_name'],
-                                          overflow: TextOverflow.ellipsis,
-                                          style: GoogleFonts.poppins(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 20,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        height: 25,
-                                        decoration: BoxDecoration(
-                                            color: app_color,
-                                            borderRadius: BorderRadius.circular(8)),
-                                        child: Center(
-                                            child: Padding(
-                                              padding: const EdgeInsets.fromLTRB(
-                                                  10, 0, 10, 0),
-                                              child: Text(
-                                                '${getTypeDescription(SelectedData[index]['cust_type'],
-                                                )}',
-
-                                                style: GoogleFonts.poppins(
-                                                    color: Colors.white),
-                                              ),
-                                            )),
-                                      ),
-                                    ],
+                  child: SelectedData.isEmpty
+                      ? Center(child: CircularProgressIndicator())
+                      : ListView.builder(
+                          itemCount: SelectedData.length,
+                          itemBuilder: (context, index) {
+                            // Check if selectedName is not null and filter by cust_name
+                            if (selectedController.text.isNotEmpty && !SelectedData[index]['cust_name'].toLowerCase().contains(selectedController.text.toLowerCase()) ||
+                                locationcontroller.text.isNotEmpty && !SelectedData[index]['cust_area'].toLowerCase().contains(locationcontroller.text.toLowerCase())) {
+                              return SizedBox.shrink();
+                            }
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ItemsPage(item: SelectedData[index]),
+                                    ));
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                child: Container(
+                                  // height: MediaQuery.of(context).size.height/5,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: Border.all(color: app_color),
                                   ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
+                                  child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                            SelectedData[index]
-                                                ['cust_area'],
-                                            style: GoogleFonts.poppins(
-                                                color:
-                                                    Colors.grey.shade600)),
-                                        Text(
-                                            SelectedData[index]
-                                                ['cust_address'],
-                                            overflow:TextOverflow.ellipsis,
-                                            style: GoogleFonts.poppins(
-                                                color:
-                                                    Colors.grey.shade600)),
-                                        Text(
-                                            'Ph : ${SelectedData[index]['cust_phone']}',
-                                            style: GoogleFonts.poppins(
-                                                color:
-                                                    Colors.grey.shade600)),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Container(
+                                                  width: 200,
+                                                  child: Text(
+                                                    SelectedData[index]
+                                                        ['cust_name'],
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: GoogleFonts.poppins(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: 20,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  height: 25,
+                                                  decoration: BoxDecoration(
+                                                      color: app_color,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              8)),
+                                                  child: Center(
+                                                      child: Padding(
+                                                    padding: const EdgeInsets
+                                                        .fromLTRB(10, 0, 10, 0),
+                                                    child: Text(
+                                                      '${getTypeDescription(
+                                                        SelectedData[index]
+                                                            ['cust_type'],
+                                                      )}',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                              color:
+                                                                  Colors.white),
+                                                    ),
+                                                  )),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                      SelectedData[index]
+                                                          ['cust_area'],
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                              color: Colors.grey
+                                                                  .shade600)),
+                                                  Text(
+                                                      SelectedData[index]
+                                                          ['cust_address'],
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                              color: Colors.grey
+                                                                  .shade600)),
+                                                  Text(
+                                                      'Ph : ${SelectedData[index]['cust_phone']}',
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                              color: Colors.grey
+                                                                  .shade600)),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        )
                                       ],
                                     ),
                                   ),
-                                ],
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              )),
+                                ),
+                              ),
+                            );
+                          },
+                        )),
             ],
           ),
         ),
@@ -492,7 +521,9 @@ class _CustomAutoCompleteTextFieldState
             ),
           ),
           suggestionsCallback: (pattern) {
-            return widget.suggestions.where((item) => item['cust_area'].toLowerCase().contains(pattern.toLowerCase()));
+            return widget.suggestions.where((item) => item['cust_area']
+                .toLowerCase()
+                .contains(pattern.toLowerCase()));
           },
           itemBuilder: (context, suggestion) {
             return ListTile(
@@ -512,88 +543,3 @@ class _CustomAutoCompleteTextFieldState
     );
   }
 }
-
-// class AreaFilter extends StatefulWidget {
-//   const AreaFilter(
-//       {Key? key,
-//         required this.suggestions,
-//         required this.hintText,
-//         required this.controller,
-//         this.onSubmitted,
-//         required this.onChanged})
-//       : super(key: key);
-//   final List suggestions; // List of suggestions for AutoCompleteTextField
-//   final String hintText; // Hint text for the field
-//   final TextEditingController controller;
-//   final ValueChanged<String>?onSubmitted; // Callback when user submits a suggestion
-//   final ValueChanged<String> onChanged;
-//   @override
-//   State<AreaFilter> createState() => _AreaFilterState();
-// }
-//
-// class _AreaFilterState extends State<AreaFilter> {
-//   // Callback when user changes the input
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.only(bottom: 16),
-//       child: TypeAheadFormField(
-//         enabled: false,
-//         autoFlipMinHeight: 10,
-//         minCharsForSuggestions: 1,
-//         textFieldConfiguration: TextFieldConfiguration(
-//           textCapitalization: TextCapitalization.words,
-//           controller: widget.controller,
-//           onChanged: widget.onChanged,
-//           decoration: InputDecoration(suffixIcon:Padding(
-//             padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-//             // child: Icon(sufix,color: Colors.grey,size: 30,),
-//           ) ,errorBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.transparent)),
-//             enabledBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10),
-//               borderSide: BorderSide(
-//                   width: 2,
-//                   color:  app_color.withOpacity(.5)), // Border color when not in focus
-//             ),
-//             hintText: 'Shop Search',
-//             labelStyle: GoogleFonts.poppins(color: Colors.black.withOpacity(.8)),
-//             fillColor:  Colors.white,
-//             filled: true,
-//             focusedBorder: OutlineInputBorder(
-//               borderRadius: BorderRadius.circular(10),
-//               borderSide: BorderSide(
-//                   width: 2,
-//                   color:app_color), // Border color when focused
-//             ),
-//             border: OutlineInputBorder(
-//                 borderRadius: BorderRadius.circular(20),
-//                 borderSide: BorderSide(color: Colors.white)),
-//
-//           ),
-//         ),
-//         suggestionsCallback: (pattern) async{
-//
-//           return widget.suggestions.where((item) => item['cust_name'].toLowerCase().contains(pattern.toLowerCase()));
-//         },
-//
-//         itemBuilder: (context, suggestion) {
-//           return ListTile(
-//             title: Text(suggestion['cust_name']),
-//             // subtitle: Text(suggestion['cust_name']),
-//           );
-//         },
-//         transitionBuilder: (context, suggestionsBox, controller) {
-//           return suggestionsBox;
-//         },
-//         onSuggestionSelected: (suggestion) {
-//
-//           // widget.controller.text = suggestion['cust_name'];
-//           setState(() {
-//             selectedName = suggestion['cust_name'];
-//           });
-//           widget.onSubmitted!(suggestion['cust_name']);
-//         },
-//       ),
-//     );
-//   }
-// }
