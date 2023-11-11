@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,9 +12,9 @@ import 'dart:io';
 import 'company_data.dart';
 import 'item_price.dart';
 import 'login.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:share/share.dart';
-import 'package:path_provider/path_provider.dart';
+// import 'package:pdf/widgets.dart' as pw;
+// import 'package:share/share.dart';
+// import 'package:path_provider/path_provider.dart';
 
 String itemname = '';
 num? grandTotal;
@@ -95,9 +96,6 @@ class _ItemsPageState extends State<ItemsPage> {
 
   TextEditingController itemController = TextEditingController();
 
-  // TextEditingController itemControllers = TextEditingController();
-  // int total = calculateTotal();
-
   num calculateTotal() {
     num total = 0;
     if (itemControllers.isNotEmpty) {
@@ -137,8 +135,7 @@ class _ItemsPageState extends State<ItemsPage> {
       itemnames = filterList[i]['item_name'];
       controller = itemControllers[i].text.toString();
       itemprice = filterList[i]['item_price1'].toString();
-      num value =
-          filterList[i]['item_price1'] * num.tryParse(controller.toString());
+      num value = filterList[i]['item_price1'] * num.tryParse(controller.toString());
       itemqty = value.toString();
       // Do something with itemCode
       orderData.add({
@@ -173,57 +170,6 @@ class _ItemsPageState extends State<ItemsPage> {
   }
 
   String Itembill = '';
-
-  String createOrderTables(List<Map<String, dynamic>> dataList) {
-    String orderText = '';
-    for (int i = 0; i < dataList.length; i++) {
-      Map<String, dynamic> data = dataList[i];
-
-      orderText += '| Field | Value |\n';
-      orderText += '| --- | --- |\n';
-      orderText += '| Order Date | ${data['ord_date']} |\n';
-      orderText += '| Item Name | ${data['item_name']} |\n';
-      orderText += '| Item Quantity | ${data['item_qty']} |\n';
-      orderText += '| Item Price | ${data['item_price']} |\n';
-      orderText += '| Customer Name | ${data['act_name']} |\n';
-      orderText += '| Customer Address | ${data['act_address']} |\n';
-      orderText += '| Customer Phone | ${data['act_phone']} |\n';
-      orderText += '| Customer Area | ${data['act_area']} |\n';
-      orderText += '| Customer Type | ${data['act_type']} |\n';
-      orderText += '| User Code | ${data['user_code']} |\n';
-      orderText += '| User Name | ${data['user_name']} |\n';
-      orderText += '| Grand Total | ${data['grand_total']} |\n';
-
-      // Add a separator between tables if there are more to come
-      if (i < dataList.length - 1) {
-        orderText += '\n---\n\n';
-      }
-    }
-    return orderText;
-  }
-
-  // Future<void> _generateAndSharePDF(List<Map<String, dynamic>> dataList) async {
-  //   final pdf = pw.Document();
-  //
-  //   String orderText = createOrderTables(dataList);
-  //
-  //   pdf.addPage(pw.Page(build: (pw.Context context) {
-  //     return pw.Center(
-  //       child: pw.Column(children: [
-  //         pw.Text('Order Details', style: pw.TextStyle(fontSize: 20)),
-  //         pw.Text(orderText),
-  //       ]),
-  //     );
-  //   }));
-  //
-  //   // Save the PDF
-  //   final output = await getTemporaryDirectory();
-  //   final file = File("${output.path}/order${DateTime.now()}.pdf");
-  //   await file.writeAsBytes(await pdf.save());
-  //
-  //   // Share the PDF
-  //   Share.shareFiles([file.path], text: 'Sharing PDF from Flutter');
-  // }
 
   Future<void> createOrderAPI(List<Map<String, dynamic>> value) async {
     try {
@@ -647,7 +593,6 @@ class _ItemsPageState extends State<ItemsPage> {
                                                     itemControllers[index]
                                                             .text =
                                                         count.toString();
-
                                                     // Update your total or other calculations here
                                                   }
                                                 });
@@ -661,45 +606,16 @@ class _ItemsPageState extends State<ItemsPage> {
                                                 onChanged: (value) {
                                                   setState(() {
                                                     var newValue =
-                                                        num.tryParse(value) ??
-                                                            0;
-                                                    // if (newValue != null) {
-                                                    //   if (newValue > ) {
+                                                        num.tryParse(value) ?? 0;
                                                     count = newValue;
                                                     grandTotal =
                                                         calculateTotal();
-                                                    // Update your total or other calculations here
-                                                    // } else {
-                                                    //   // Show an alert dialog if the count exceeds the stock
-                                                    //   count = newValue;
-                                                    //   showDialog(
-                                                    //     context: context,
-                                                    //     builder:
-                                                    //         (BuildContext context) {
-                                                    //       return AlertDialog(
-                                                    //         title: Text('Invalid Count'),
-                                                    //         content: Text('Enter a Proper Value Count'),
-                                                    //         actions: <Widget>[
-                                                    //           TextButton(
-                                                    //             onPressed: () {
-                                                    //               Navigator.of(context).pop();
-                                                    //             },
-                                                    //             child: Text('OK'),
-                                                    //           ),
-                                                    //         ],
-                                                    //       );
-                                                    //     },
-                                                    //   );
-                                                    // Reset the TextField value to the current item count
-                                                    itemControllers[index]
-                                                            .text =
+                                                    itemControllers[index].text =
                                                         count.toString();
-                                                    // }
-                                                    // }
                                                   });
                                                 },
-                                                keyboardType:
-                                                    TextInputType.number,
+                                                keyboardType: TextInputType.number,
+                                                inputFormatters: [LengthLimitingTextInputFormatter(3)],
                                                 textAlign: TextAlign.center,
                                                 decoration: InputDecoration(
                                                   border: UnderlineInputBorder(
@@ -724,10 +640,6 @@ class _ItemsPageState extends State<ItemsPage> {
                                                   count++;
                                                   itemControllers[index].text =
                                                       count.toString();
-                                                  // grandTotal = calculateTotal();
-                                                  // print(itemControllers[0].text);
-                                                  // Update your total or other calculations here
-                                                  // print("${filterList[index]['item_qty'].runtimeType}");
                                                   if (itemControllers[index]
                                                           .text ==
                                                       filterList[index]
@@ -919,11 +831,7 @@ class _ItemFilterState extends State<ItemFilter> {
               ),
             ),
             suggestionsCallback: (pattern) async {
-              return widget.suggestions
-                  .where((item) => item['item_name']
-                      .toLowerCase()
-                      .startsWith(pattern.toLowerCase()))
-                  .toList();
+              return widget.suggestions.where((item) => item['item_name'].toLowerCase().startsWith(pattern.toLowerCase())).toList();
             },
             itemBuilder: (context, suggestion) {
               final isLastItem = widget.suggestions.indexOf(suggestion) ==

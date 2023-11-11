@@ -29,41 +29,9 @@ class _ItemsPageDataState extends State<ItemsPageData> {
 
   TextEditingController itemcontroller = TextEditingController();
   // List itemdata = [];
-  List filteredItemList = [];
 
-  // Future<void> ItemCall() async {
-  //   try {
-  //     final uri = Uri.parse('$api/items');
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //
-  //     comp = prefs.getString('comp')!;
-  //
-  //     final requestBody = {
-  //       'compcode': comp,
-  //     };
-  //
-  //     final response = await http.post(
-  //       uri,
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: json.encode(requestBody),
-  //     );
-  //
-  //     if (response.statusCode == 200) {
-  //       final Map<String, dynamic> data = json.decode(response.body);
-  //
-  //       setState(() {
-  //         itemdatalist = data['data'];
-  //
-  //       });
-  //     } else {
-  //       print('Error: ${comp}');
-  //     }
-  //   } catch (e) {
-  //     print('Error: $e');
-  //   }
-  // }
+  List filteredItemList = [];
+  
 
   void sortItemList() {
     setState(() {
@@ -77,7 +45,7 @@ class _ItemsPageDataState extends State<ItemsPageData> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Items List'),
+        // title: Text('Items List'),
         backgroundColor: app_color,
       ),
       body: SafeArea(

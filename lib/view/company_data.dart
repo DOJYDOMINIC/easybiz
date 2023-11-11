@@ -8,6 +8,7 @@ import '../const.dart';
 import 'item_price.dart';
 import 'itemspage.dart';
 import 'login.dart';
+import 'orders_page.dart';
 
 String? selectedName;
 String? username;
@@ -190,11 +191,16 @@ class _CompanyDataState extends State<CompanyData> {
                 ),
               ),
             ),
-            ListTile(
-              leading: const Icon(Icons.shopping_cart),
-              title: Text(
-                'Orders',
-                style: GoogleFonts.poppins(),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Orders(),));
+              },
+              child: ListTile(
+                leading: const Icon(Icons.shopping_cart),
+                title: Text(
+                  'Orders',
+                  style: GoogleFonts.poppins(),
+                ),
               ),
             ),
             GestureDetector(
